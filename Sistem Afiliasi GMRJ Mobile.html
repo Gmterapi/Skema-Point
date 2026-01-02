@@ -1,0 +1,2627 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skema Poin Afiliasi GMRJ</title>
+    <style>
+        :root {
+            --color-primary: #208090;
+            --color-secondary: #5e5240;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-text: #134252;
+            --color-text-light: #626c71;
+            --color-border: rgba(94, 82, 64, 0.2);
+            --color-success: #32b8c6;
+            --color-warning: #e6814d;
+            --color-error: #c0152f;
+            --spacing-4: 4px;
+            --spacing-8: 8px;
+            --spacing-12: 12px;
+            --spacing-16: 16px;
+            --spacing-24: 24px;
+            --radius: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.5;
+        }
+
+        .container {
+            display: none; /* Hidden by default until login */
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: var(--color-text);
+            color: white;
+            padding: var(--spacing-24);
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: var(--spacing-24);
+            padding-bottom: var(--spacing-16);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-sidebar-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: none; 
+        }
+
+        .nav-menu { list-style: none; }
+        .nav-menu li { margin-bottom: var(--spacing-8); }
+        .nav-menu button {
+            width: 100%;
+            padding: var(--spacing-8) var(--spacing-16);
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            text-align: left;
+            border-radius: var(--radius);
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        .nav-menu button:hover { background: rgba(255,255,255,0.1); }
+        .nav-menu button.active { background: var(--color-primary); font-weight: 600; }
+
+        .main-content { padding: var(--spacing-24); overflow-y: auto; }
+        
+        /* MOBILE MENU BUTTON */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: var(--color-primary);
+            cursor: pointer;
+            margin-right: var(--spacing-8);
+        }
+
+        .header { margin-bottom: var(--spacing-24); display: flex; flex-direction: column; }
+        .header-top { display: flex; align-items: center; }
+        .header h1 { font-size: 28px; margin-bottom: var(--spacing-8); }
+        .header p { color: var(--color-text-light); }
+
+        .tabs {
+            display: flex;
+            gap: var(--spacing-8);
+            margin-bottom: var(--spacing-24);
+            border-bottom: 1px solid var(--color-border);
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: var(--spacing-8) var(--spacing-16);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-text-light);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        .tab-button:hover { color: var(--color-text); }
+        .tab-button.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            padding: var(--spacing-24);
+            margin-bottom: var(--spacing-24);
+            border: 1px solid var(--color-border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card h3 { margin-bottom: var(--spacing-16); color: var(--color-text); font-size: 16px; }
+        .card h4 { margin-bottom: var(--spacing-12); color: var(--color-text); font-size: 14px; margin-top: var(--spacing-16); }
+
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { background: #f5f5f5; padding: var(--spacing-12) var(--spacing-8); text-align: left; font-weight: 600; color: var(--color-text); border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+        td { padding: var(--spacing-12) var(--spacing-8); border-bottom: 1px solid var(--color-border); white-space: nowrap; }
+        tbody tr:hover { background: #f9f9f9; }
+        tbody tr.total-row { background: #f0f0f0; font-weight: 600; border-top: 2px solid var(--color-border); }
+        tbody tr.summary-row { background: #e8f5f6; font-weight: 600; }
+
+        .form-group { margin-bottom: var(--spacing-16); }
+        label { display: block; margin-bottom: var(--spacing-8); font-weight: 500; color: var(--color-text); font-size: 14px; }
+        input, select, textarea {
+            width: 100%;
+            padding: var(--spacing-8) var(--spacing-12);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--color-text);
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(32, 128, 144, 0.1); }
+        input:disabled { background-color: #f5f5f5; cursor: not-allowed; }
+
+        .btn {
+            padding: var(--spacing-8) var(--spacing-16);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-8);
+        }
+        .btn-primary { background: var(--color-primary); color: white; }
+        .btn-primary:hover { background: #1a6675; }
+        .btn-secondary { background: #f5f5f5; color: var(--color-text); }
+        .btn-secondary:hover { background: #e8e8e8; }
+        .btn-danger { background: #fee2e2; color: var(--color-error); }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-success { background: #d1fae5; color: #059669; }
+        .btn-success:hover { background: #a7f3d0; }
+        .btn-small { padding: var(--spacing-4) var(--spacing-12); font-size: 12px; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-24);
+            margin-bottom: var(--spacing-24);
+        }
+
+        .stat-box {
+            background: var(--color-surface);
+            padding: var(--spacing-16);
+            border-radius: var(--radius);
+            border: 1px solid var(--color-border);
+        }
+        .stat-label { color: var(--color-text-light); font-size: 13px; margin-bottom: var(--spacing-8); }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--color-primary); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 2000; 
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--color-surface);
+            padding: var(--spacing-24);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-16);
+            padding-bottom: var(--spacing-16);
+            border-bottom: 1px solid var(--color-border);
+        }
+        .close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-text-light); }
+
+        .level-0 { color: #c0152f; }
+        .level-1 { color: #e6814d; }
+        .level-2 { color: #208090; }
+        .level-3 { color: #2d7ab6; }
+        .level-4 { color: #6b21a8; }
+        .level-5 { color: #059669; }
+
+        .badge { display: inline-block; padding: var(--spacing-4) var(--spacing-8); border-radius: 12px; font-size: 12px; font-weight: 600; }
+        .badge-success { background: rgba(50, 184, 198, 0.2); color: #32b8c6; }
+        .badge-inactive { background: #e5e7eb; color: #6b7280; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-16); }
+        .summary-box { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-16); margin-bottom: var(--spacing-24); }
+        .summary-item { background: #f9f9f9; padding: var(--spacing-16); border-radius: var(--radius); border: 1px solid var(--color-border); }
+        .summary-item-label { font-size: 12px; color: var(--color-text-light); margin-bottom: var(--spacing-8); }
+        .summary-item-value { font-size: 18px; font-weight: 700; color: var(--color-primary); }
+
+        /* Settings Styles */
+        .backup-section {
+            display: grid;
+            gap: var(--spacing-16);
+            padding: var(--spacing-16);
+            background: #f8fafc;
+            border-radius: var(--radius);
+            border: 1px dashed var(--color-border);
+        }
+        .backup-actions { display: flex; gap: var(--spacing-16); flex-wrap: wrap; }
+
+        /* --- REPORT ACCORDION STYLES (NEW) --- */
+        .report-accordion {
+            margin-bottom: var(--spacing-24);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            background: var(--color-surface);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-16) var(--spacing-24);
+            background: #f8fafc;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s;
+        }
+
+        .report-header:hover {
+            background: #f1f5f9;
+        }
+
+        .report-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: var(--color-text);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-8);
+        }
+
+        .report-header h3::before {
+            content: '+';
+            display: inline-block;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-primary);
+            transition: transform 0.3s;
+        }
+
+        .report-accordion.active .report-header h3::before {
+            transform: rotate(45deg);
+        }
+
+        .report-body {
+            display: none;
+            padding: var(--spacing-24);
+            border-top: 1px solid var(--color-border);
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .report-accordion.active .report-body {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- PRINT MEDIA QUERY --- */
+        @media print {
+            .sidebar, .header, .mobile-menu-btn, .nav-menu, .settings, 
+            #dashboard, #products, #members, #transactions, #commissions, #recap, #network-tree, 
+            .report-header, .btn-close, .modal, .form-group {
+                display: none !important;
+            }
+            
+            body, .container, .main-content {
+                height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                position: static !important;
+                background: white !important;
+                color: black !important;
+            }
+
+            #reports {
+                display: block !important;
+            }
+
+            .report-accordion {
+                border: none !important;
+                box-shadow: none !important;
+                margin-bottom: 0 !important;
+            }
+
+            .report-body {
+                display: none !important; /* Hide all bodies */
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .report-accordion.active .report-body {
+                display: block !important; /* Show only active body */
+            }
+            
+            table { font-size: 10pt; width: 100%; border-collapse: collapse; }
+            th, td { border: 1px solid #000; padding: 4px; color: black; }
+            .badge { border: 1px solid #000; }
+        }
+
+        /* --- NETWORK TREE STYLES --- */
+        .tree-container {
+            display: flex;
+            justify-content: center;
+            padding: var(--spacing-24);
+            overflow-x: auto;
+            min-height: 200px;
+        }
+        
+        .tree ul {
+            padding-top: 20px; position: relative;
+            transition: all 0.5s;
+            list-style-type: none;
+            padding-left: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .tree li {
+            float: left; text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+            transition: all 0.5s;
+        }
+
+        /* Connectors */
+        .tree li::before, .tree li::after {
+            content: '';
+            position: absolute; top: 0; right: 50%;
+            border-top: 1px solid var(--color-primary);
+            width: 50%; height: 20px;
+        }
+        .tree li::after {
+            right: auto; left: 50%;
+            border-left: 1px solid var(--color-primary);
+        }
+
+        /* Remove connectors from first child and last child */
+        .tree li:first-child::before, .tree li:last-child::after {
+            border: 0 none;
+        }
+        .tree li:last-child::before{
+            border-right: 1px solid var(--color-primary);
+            border-radius: 0 5px 0 0;
+        }
+        .tree li:first-child::after{
+            border-radius: 5px 0 0 0;
+        }
+
+        /* Downward connector from parent */
+        .tree ul ul::before{
+            content: '';
+            position: absolute; top: 0; left: 50%;
+            border-left: 1px solid var(--color-primary);
+            width: 0; height: 20px;
+        }
+
+        .member-node-card {
+            background: white;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            padding: var(--spacing-12) var(--spacing-16);
+            display: inline-block;
+            min-width: 180px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            text-align: left;
+            position: relative;
+            z-index: 2;
+        }
+        .member-node-card:hover {
+            box-shadow: 0 5px 15px rgba(32, 128, 144, 0.3);
+            transform: translateY(-2px);
+            border-color: var(--color-primary);
+        }
+        
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-8);
+            margin-bottom: var(--spacing-4);
+        }
+        .node-id { font-size: 10px; font-weight: 700; color: var(--color-secondary); background: #f0f0f0; padding: 2px 6px; border-radius: 4px; }
+        .node-name { font-weight: 600; color: var(--color-text); font-size: 14px; }
+        
+        .node-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--color-text-light);
+        }
+        .node-stat span { display: block; }
+        .node-stat .val { font-weight: 600; color: var(--color-primary); }
+
+        .btn-expand {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            margin-top: var(--spacing-8);
+            width: 100%;
+            display: none; /* Hidden if no children */
+            text-align: center;
+        }
+        .btn-expand:hover { background: #bae6fd; }
+
+
+        /* --- LOGIN SCREEN STYLES --- */
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100vh;
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-text) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .login-card h2 { margin-bottom: var(--spacing-24); color: var(--color-primary); }
+        .login-card input { margin-bottom: var(--spacing-16); }
+        .login-btn { width: 100%; padding: 12px; font-size: 16px; }
+
+        /* --- MOBILE RESPONSIVE STYLES --- */
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+            
+            .sidebar {
+                position: fixed;
+                left: 0; top: 0;
+                width: 250px;
+                height: 100vh;
+                transform: translateX(-100%);
+                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+            }
+
+            .sidebar.active { transform: translateX(0); }
+            
+            .close-sidebar-btn { display: block; } 
+
+            .mobile-menu-btn { display: block; } 
+
+            .main-content { padding: var(--spacing-16); }
+            .form-row { grid-template-columns: 1fr; }
+            
+            .header h1 { font-size: 22px; }
+            .card { padding: var(--spacing-16); }
+            .btn { width: 100%; justify-content: center; }
+            .table-wrapper { border-radius: var(--radius); border: 1px solid var(--color-border); }
+            
+            .stats-grid { grid-template-columns: 1fr; gap: var(--spacing-12); }
+            .stat-value { font-size: 20px; }
+            
+            /* Tree Responsive */
+            .tree li { float: none; padding-left: 0; padding-right: 0; padding-bottom: 30px; display: block; }
+            .tree li::before, .tree li::after { display: none; } 
+            .tree ul ul::before { display: none; }
+            .member-node-card { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+            .tree ul { padding-left: 20px; display: block; }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="login-card">
+            <h2>🔐 Login Sistem</h2>
+            <form onsubmit="checkLogin(event)">
+                <div class="form-group" style="text-align: left;">
+                    <label>Username</label>
+                    <input type="text" id="loginUsername" required placeholder="Masukkan Username">
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="Masukkan Password">
+                </div>
+                <button type="submit" class="btn btn-primary login-btn">Masuk Aplikasi</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-title">
+                <div style="display:flex; align-items:center; gap: 12px;">
+                    <span style="font-weight: 600; font-size: 18px; line-height: 1;">Skema Poin</span>
+                </div>
+                <button class="close-sidebar-btn" onclick="toggleSidebar()">&times;</button>
+            </div>
+            <ul class="nav-menu">
+                <li><button class="nav-btn active" data-tab="dashboard" onclick="closeSidebarMobile()">📊 Dashboard</button></li>
+                <li><button class="nav-btn" data-tab="products" onclick="closeSidebarMobile()">📦 Produk</button></li>
+                <li><button class="nav-btn" data-tab="members" onclick="closeSidebarMobile()">👥 Member</button></li>
+                <li><button class="nav-btn" data-tab="transactions" onclick="closeSidebarMobile()">📈 Transaksi</button></li>
+                <li><button class="nav-btn" data-tab="commissions" onclick="closeSidebarMobile()">💰 Komisi</button></li>
+                <li><button class="nav-btn" data-tab="reports" onclick="closeSidebarMobile()">📋 Laporan</button></li>
+                <li><button class="nav-btn" data-tab="recap" onclick="closeSidebarMobile()">📑 Rekapitulasi</button></li>
+                <li><button class="nav-btn" data-tab="network-tree" onclick="closeSidebarMobile()">🌲 Pohon Jaringan</button></li>
+                <li><button class="nav-btn" data-tab="settings" onclick="closeSidebarMobile()">⚙️ Pengaturan</button></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="header-top">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                    <h1>Skema Poin Afiliasi GMRJ</h1>
+                </div>
+                <p>Manajemen komisi dan bonus untuk jaringan afiliasi Anda</p>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboard" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-label">Total Member</div>
+                        <div class="stat-value" id="total-members">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Produk</div>
+                        <div class="stat-value" id="total-products">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Transaksi</div>
+                        <div class="stat-value" id="total-transactions">0</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-label">Total Komisi</div>
+                        <div class="stat-value" id="total-commission">Rp0</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 Komisi Terbaru</h3>
+                    <div class="table-wrapper">
+                        <table id="recent-commissions">
+                            <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Level</th>
+                                    <th>Transaksi</th>
+                                    <th>Komisi</th>
+                                    <th>Tanggal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" style="text-align: center; color: #999;">Belum ada data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Produk -->
+            <div id="products" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-24);">
+                        <h3 style="margin: 0;">Daftar Produk</h3>
+                        <button class="btn btn-primary" onclick="openAddProductModal()">+ Tambah Produk</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="products-table">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Produk</th>
+                                    <th>Harga</th>
+                                    <th>Komisi</th>
+                                    <th>Poin</th>
+                                    <th>Kategori</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member -->
+            <div id="members" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-24);">
+                        <h3 style="margin: 0;">Daftar Member</h3>
+                        <button class="btn btn-primary" onclick="openAddMemberModal()">+ Tambah Member</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="members-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nama</th>
+                                    <th>Upline</th>
+                                    <th>Koordinat</th>
+                                    <th>Total Komisi</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaksi -->
+            <div id="transactions" class="tab-content">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-24);">
+                        <h3 style="margin: 0;">Input Transaksi</h3>
+                        <button class="btn btn-primary" onclick="openAddTransactionModal()">+ Transaksi Baru</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table id="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Tanggal</th>
+                                    <th>Member</th>
+                                    <th>Produk</th>
+                                    <th>Jumlah</th>
+                                    <th>Nilai</th>
+                                    <th>Total Komisi</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Komisi -->
+            <div id="commissions" class="tab-content">
+                <div class="card">
+                    <h3>Distribusi Komisi Per Member</h3>
+                    <div class="table-wrapper">
+                        <table id="commissions-table">
+                            <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Level 0</th>
+                                    <th>Level 1</th>
+                                    <th>Level 2</th>
+                                    <th>Level 3</th>
+                                    <th>Level 4</th>
+                                    <th>Level 5</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Laporan (REVISED TO ACCORDION) -->
+            <div id="reports" class="tab-content">
+                <h2 style="margin-bottom: var(--spacing-24);">Laporan & Analisis</h2>
+
+                <!-- SECTION 1: RINGKASAN -->
+                <div class="report-accordion active" id="acc-overview">
+                    <div class="report-header" onclick="toggleReportSection('overview')">
+                        <h3>📊 Ringkasan</h3>
+                        <button class="btn btn-secondary" onclick="event.stopPropagation(); printReport()">🖨️ Cetak Laporan</button>
+                    </div>
+                    <div id="overview" class="report-body">
+                        <div class="table-wrapper">
+                            <table id="report-table">
+                                <thead>
+                                    <tr>
+                                        <th>Member</th>
+                                        <th>Total Penjualan</th>
+                                        <th>Total Komisi</th>
+                                        <th>Total Poin</th>
+                                        <th>Level Tertinggi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: REKAP PER MEMBER -->
+                <div class="report-accordion" id="acc-memberdetail">
+                    <div class="report-header" onclick="toggleReportSection('memberdetail')">
+                        <h3>👤 Rekap Per Member</h3>
+                        <button class="btn btn-secondary" onclick="event.stopPropagation(); printReport()">🖨️ Cetak Laporan</button>
+                    </div>
+                    <div id="memberdetail" class="report-body">
+                        <div style="margin-bottom: var(--spacing-16);">
+                            <label style="margin-bottom: var(--spacing-8);">Pilih Member:</label>
+                            <select id="reportMemberFilter" onchange="renderMemberDetailReport()" style="max-width: 300px;">
+                                <option value="">-- Semua Member --</option>
+                            </select>
+                        </div>
+                        <div class="table-wrapper">
+                            <table id="member-detail-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Member</th>
+                                        <th>Tanggal</th>
+                                        <th>Produk</th>
+                                        <th>Qty</th>
+                                        <th>Nilai Transaksi</th>
+                                        <th>Level 0</th>
+                                        <th>Level 1</th>
+                                        <th>Level 2</th>
+                                        <th>Level 3+</th>
+                                        <th>Total Komisi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+
+                        <div id="memberSummaryContainer" style="display: none;">
+                            <div class="card" style="margin-top: 20px;">
+                                <h3>Ringkasan Komisi</h3>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-16);">
+                                    <div style="padding: var(--spacing-16); background: #f9f9f9; border-radius: var(--radius);">
+                                        <div style="font-size: 12px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">Total Transaksi</div>
+                                        <div id="memberTotalTrans" style="font-size: 20px; font-weight: 700; color: var(--color-primary);">0</div>
+                                    </div>
+                                    <div style="padding: var(--spacing-16); background: #f9f9f9; border-radius: var(--radius);">
+                                        <div style="font-size: 12px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">Total Nilai Transaksi</div>
+                                        <div id="memberTotalValue" style="font-size: 20px; font-weight: 700; color: var(--color-primary);">Rp0</div>
+                                    </div>
+                                    <div style="padding: var(--spacing-16); background: #f9f9f9; border-radius: var(--radius);">
+                                        <div style="font-size: 12px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">Total Komisi Diterima</div>
+                                        <div id="memberTotalComm" style="font-size: 20px; font-weight: 700; color: var(--color-success);">Rp0</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card" style="margin-top: 20px;">
+                                <h3>Rincian Komisi Tiap Level</h3>
+                                <div class="table-wrapper">
+                                    <table id="member-level-breakdown">
+                                        <thead>
+                                            <tr>
+                                                <th>Level</th>
+                                                <th>Total Komisi</th>
+                                                <th>Persentase</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 3: RANKING POINT -->
+                <div class="report-accordion" id="acc-ranking">
+                    <div class="report-header" onclick="toggleReportSection('ranking')">
+                        <h3>🏆 Ranking Point</h3>
+                        <button class="btn btn-secondary" onclick="event.stopPropagation(); printReport()">🖨️ Cetak Laporan</button>
+                    </div>
+                    <div id="ranking" class="report-body">
+                        <div class="table-wrapper">
+                            <table id="ranking-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">Ranking</th>
+                                        <th>ID Member</th>
+                                        <th>Nama Member</th>
+                                        <th style="width: 140px;">Total Point</th>
+                                        <th>Total Komisi</th>
+                                        <th>Upline</th>
+                                        <th>Jumlah Transaksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rekapitulasi -->
+            <div id="recap" class="tab-content">
+                <div class="card">
+                    <h3>📑 Rekapitulasi Sistem MLM</h3>
+
+                    <h4>1. Akumulasi Produk Terjual</h4>
+                    <div class="table-wrapper">
+                        <table id="product-accumulation-table">
+                            <thead>
+                                <tr>
+                                    <th>Nama Produk</th>
+                                    <th style="width: 150px; text-align: right;">Jumlah Terjual</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <h4>2. Jumlah Transaksi, Total Komisi & Poin SEBELUM Dibagi</h4>
+                    <div class="summary-box">
+                        <div class="summary-item">
+                            <div class="summary-item-label">Jumlah Nilai Transaksi (Omset)</div>
+                            <div class="summary-item-value" id="totalOmsetBefore">Rp0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Total Komisi Sebelum Dibagi</div>
+                            <div class="summary-item-value" id="totalCommBefore">Rp0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-item-label">Total Point Sebelum Dibagi</div>
+                            <div class="summary-item-value" id="totalPointBefore">0</div>
+                        </div>
+                    </div>
+
+                    <h4>3. Jumlah Transaksi, Total Komisi & Poin SETELAH Dibagi</h4>
+                    <div class="table-wrapper">
+                        <table id="allocation-table">
+                            <thead>
+                                <tr>
+                                    <th>Deskripsi</th>
+                                    <th style="text-align: right;">Komisi</th>
+                                    <th style="text-align: right;">Point</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Jumlah Nilai Transaksi (Omset)</strong></td>
+                                    <td style="text-align: right;" id="omsetAfter">Rp0</td>
+                                    <td style="text-align: right;">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Komisi Reward</strong></td>
+                                    <td style="text-align: right;" id="commRewardAfter">Rp0</td>
+                                    <td style="text-align: right;">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Point Reward</strong></td>
+                                    <td style="text-align: right;">-</td>
+                                    <td style="text-align: right;" id="pointRewardAfter">0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Komisi Manajemen</strong></td>
+                                    <td style="text-align: right;" id="commManagementAfter">Rp0</td>
+                                    <td style="text-align: right;">-</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Point Manajemen</strong></td>
+                                    <td style="text-align: right;">-</td>
+                                    <td style="text-align: right;" id="pointManagementAfter">0</td>
+                                </tr>
+                                <tr class="summary-row">
+                                    <td><strong>Alokasi Reward Terdistribusi</strong></td>
+                                    <td style="text-align: right;" id="allocationRewardDist">Rp0</td>
+                                    <td style="text-align: right;" id="allocationPointDist">0</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sisa Alokasi (Masuk Manajemen)</strong></td>
+                                    <td style="text-align: right;" id="remainingComm">Rp0</td>
+                                    <td style="text-align: right;" id="remainingPoint">0</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td><strong>Total Komisi Akhir</strong></td>
+                                    <td style="text-align: right;" id="totalCommFinal">Rp0</td>
+                                    <td style="text-align: right;">-</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td><strong>Total Point Akhir</strong></td>
+                                    <td style="text-align: right;">-</td>
+                                    <td style="text-align: right;" id="totalPointFinal">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POHON JARINGAN (NETWORK TREE) -->
+            <div id="network-tree" class="tab-content">
+                <div class="card">
+                    <h3>🌲 Pohon Jaringan Afiliasi</h3>
+                    <p style="margin-bottom: var(--spacing-16); color: var(--color-text-light);">
+                        Visualisasi struktur downline member Anda. Klik tombol "Lihat Downline" untuk melihat jaringan.
+                    </p>
+                    <div class="tree-wrapper">
+                        <div class="tree" id="network-tree-root"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pengaturan (Settings) -->
+            <div id="settings" class="tab-content">
+                <div class="card">
+                    <h3>⚙️ Pengaturan & Cloud Backup</h3>
+                    <p style="margin-bottom: var(--spacing-16); color: var(--color-text-light);">
+                        Data saat ini tersimpan otomatis di browser ini (LocalStorage). Gunakan fitur di bawah untuk memindahkan data ke perangkat lain atau menyimpannya di Cloud (Google Drive, Email, dll).
+                    </p>
+
+                    <div class="backup-section">
+                        <div>
+                            <h4>👥 Import Data Member (Excel/CSV)</h4>
+                            <p style="font-size: 13px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">
+                                Upload file CSV (.csv) untuk mengisi data member. 
+                                Format yang didukung: <br>
+                                <strong>ID, Nama Member, Upline (Nama), Koordinat, Status, Total Komisi</strong>
+                            </p>
+                            <input type="file" id="importMemberFile" accept=".csv" style="margin-bottom: var(--spacing-8);">
+                            <button class="btn btn-success" onclick="importMembersFromCSV()">
+                                📤 Upload & Isi Member
+                            </button>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid var(--color-border);">
+
+                        <!-- FITUR BARU: IMPORT TRANSAKSI -->
+                        <div>
+                            <h4>📈 Import Data Transaksi (CSV/Excel)</h4>
+                            <p style="font-size: 13px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">
+                                Upload file CSV (.csv) untuk menambahkan transaksi. <br>
+                                <strong>Kolom Wajib:</strong> Member, Produk (Nama), Jumlah. <br>
+                                <strong>Kolom Opsional:</strong> Tanggal (Jika kosong = Hari ini). <br>
+                                <em>Sistem akan otomatis menghitung Nilai dan Komisi berdasarkan data Produk.</em>
+                            </p>
+                            <input type="file" id="importTransactionFile" accept=".csv" style="margin-bottom: var(--spacing-8);">
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button class="btn btn-success" onclick="importTransactionsFromCSV()">
+                                    📤 Upload & Isi Transaksi
+                                </button>
+                                <button class="btn btn-secondary" onclick="downloadTransactionTemplate()">
+                                    📥 Download Template CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid var(--color-border);">
+
+                        <div>
+                            <h4>📊 Export Data Transaksi (Excel)</h4>
+                            <p style="font-size: 13px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">
+                                Download semua data transaksi ke dalam file CSV yang bisa dibuka di Microsoft Excel.
+                            </p>
+                            <button class="btn btn-secondary" onclick="exportToExcel()">
+                                📥 Export Transaksi (.csv)
+                            </button>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid var(--color-border);">
+
+                        <div>
+                            <h4>💾 Backup Database (Download)</h4>
+                            <p style="font-size: 13px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">
+                                Download semua data (Member, Produk, Transaksi) ke dalam file JSON. Simpan file ini secara aman.
+                            </p>
+                            <button class="btn btn-primary" onclick="exportData()">
+                                ⬇️ Download Backup (.json)
+                            </button>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid var(--color-border);">
+
+                        <div>
+                            <h4>☁️ Restore Database (Upload)</h4>
+                            <p style="font-size: 13px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">
+                                Upload file backup JSON untuk memulihkan data. <strong>Perhatian: Data yang ada saat ini akan ditimpa.</strong>
+                            </p>
+                            <input type="file" id="importFile" accept=".json" style="margin-bottom: var(--spacing-8);">
+                            <button class="btn btn-warning" onclick="importData()">
+                                ⬆️ Upload & Restore Data
+                            </button>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid var(--color-border);">
+
+                        <div>
+                            <h4>⚠️ Zona Bahaya</h4>
+                            <p style="font-size: 13px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">
+                                Hapus semua data dari browser dan kembali ke data contoh awal.
+                            </p>
+                            <button class="btn btn-danger" onclick="resetData()">
+                                🗑️ Reset Semua Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Produk -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="productModalTitle">Tambah Produk Baru</h2>
+                <button class="close-btn" onclick="closeModal('productModal')">&times;</button>
+            </div>
+            <form onsubmit="addProduct(event)">
+                <input type="hidden" id="productOriginalCode">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kode Produk</label>
+                        <input type="text" id="productCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Produk</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Harga Jual (Rp)</label>
+                        <input type="number" id="productPrice" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Komisi (Rp)</label>
+                        <input type="number" id="productCommission" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Poin</label>
+                        <input type="number" id="productPoint" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategori</label>
+                        <select id="productCategory">
+                            <option value="Reguler">Reguler</option>
+                            <option value="Premium">Premium</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan Produk</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Member -->
+    <div id="memberModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="memberModalTitle">Tambah Member Baru</h2>
+                <button class="close-btn" onclick="closeModal('memberModal')">&times;</button>
+            </div>
+            <form onsubmit="saveMember(event)">
+                <input type="hidden" id="memberEditMode" value="false">
+                <input type="hidden" id="memberOriginalId" value="">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>ID Member <span style="color: var(--color-error);">*</span></label>
+                        <input type="text" id="memberId" required placeholder="Contoh: M001">
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Member <span style="color: var(--color-error);">*</span></label>
+                        <input type="text" id="memberName" required placeholder="Nama lengkap">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Upline</label>
+                        <select id="memberUpline">
+                            <option value="">-- Tidak Ada --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="memberStatus">
+                            <option value="aktif">Aktif</option>
+                            <option value="tidak aktif">Tidak Aktif</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Koordinat</label>
+                    <input type="text" id="memberCoordinate" placeholder="Contoh: -6.2088, 106.8456">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">💾 Simpan Member</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Transaksi -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Input Transaksi Baru</h2>
+                <button class="close-btn" onclick="closeModal('transactionModal')">&times;</button>
+            </div>
+            <form onsubmit="addTransaction(event)">
+                <div class="form-group">
+                    <label>Tanggal Transaksi</label>
+                    <input type="date" id="transactionDate" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Member Pembeli</label>
+                        <select id="transactionMember" required onchange="updateMemberUplinesTable()">
+                            <option value="">-- Pilih Member --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Produk</label>
+                        <select id="transactionProduct" required onchange="updateTransactionPrice()">
+                            <option value="">-- Pilih Produk --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Jumlah</label>
+                        <input type="number" id="transactionQty" value="1" required onchange="updateTransactionPrice()">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Nilai</label>
+                        <input type="text" id="transactionValue" readonly style="background: #f5f5f5;">
+                    </div>
+                </div>
+                <div class="card" style="background: #f9f9f9; margin-bottom: var(--spacing-16);">
+                    <h4 style="margin-bottom: var(--spacing-16);">Distribusi Komisi</h4>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Level</th>
+                                    <th>Member</th>
+                                    <th>Komisi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="commissionTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Simpan Transaksi</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const app = {
+            products: [],
+            members: [],
+            transactions: [],
+            STORAGE_KEY: 'mlm_system_data_v1',
+            
+            init() {
+                this.loadData();
+                this.setupEventListeners();
+                this.render();
+                // Render default report tab
+                renderOverviewReport();
+            },
+
+            loadData() {
+                const storedData = localStorage.getItem(this.STORAGE_KEY);
+                if (storedData) {
+                    try {
+                        const data = JSON.parse(storedData);
+                        this.products = data.products || [];
+                        this.members = data.members || [];
+                        this.transactions = data.transactions || [];
+                        console.log('Data dimuat dari LocalStorage.');
+                    } catch (e) {
+                        console.error('Gagal memuat data, mereset ke default...', e);
+                        this.loadSampleData();
+                    }
+                } else {
+                    this.loadSampleData();
+                }
+            },
+
+            saveData() {
+                const data = {
+                    products: this.products,
+                    members: this.members,
+                    transactions: this.transactions
+                };
+                localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+                console.log('Data tersimpan ke LocalStorage.');
+            },
+
+            resetData() {
+                if(confirm('Apakah Anda yakin ingin menghapus SEMUA data dan kembali ke data contoh? Tindakan ini tidak bisa dibatalkan.')) {
+                    localStorage.removeItem(this.STORAGE_KEY);
+                    this.loadData(); 
+                    this.render();
+                    alert('Sistem berhasil di-reset.');
+                }
+            },
+
+            loadSampleData() {
+                this.products = [
+                    { code: 'PENDAN_WUL', name: 'Pendan Wulung', price: 1500000, commission: 70000, point: 7.00, category: 'Premium', 
+                      commissionReward: 70000, commissionManagement: 30000, pointReward: 7.00, pointManagement: 3.00, 
+                      levels: 6, levelCommissions: [49000, 7000, 5600, 4200, 2800, 1400], levelPoints: [4.9, 0.7, 0.56, 0.42, 0.28, 0.14] },
+                    { code: 'PHERO', name: 'Pheromone', price: 50000, commission: 500, point: 0.05, category: 'Reguler',
+                      commissionReward: 500, commissionManagement: 500, pointReward: 0.05, pointManagement: 0.05,
+                      levels: 3, levelCommissions: [350, 100, 50], levelPoints: [0.035, 0.01, 0.005] },
+                    { code: 'A_POW', name: 'A Powder', price: 70000, commission: 700, point: 0.07, category: 'Reguler',
+                      commissionReward: 700, commissionManagement: 700, pointReward: 0.07, pointManagement: 0.07,
+                      levels: 3, levelCommissions: [490, 140, 70], levelPoints: [0.049, 0.014, 0.007] },
+                    { code: 'B_POW', name: 'B Powder', price: 70000, commission: 700, point: 0.07, category: 'Reguler',
+                      commissionReward: 700, commissionManagement: 700, pointReward: 0.07, pointManagement: 0.07,
+                      levels: 3, levelCommissions: [490, 140, 70], levelPoints: [0.049, 0.014, 0.007] },
+                    { code: 'C_POW', name: 'C Powder', price: 70000, commission: 700, point: 0.07, category: 'Reguler',
+                      commissionReward: 700, commissionManagement: 700, pointReward: 0.07, pointManagement: 0.07,
+                      levels: 3, levelCommissions: [490, 140, 70], levelPoints: [0.049, 0.014, 0.007] },
+                    { code: 'A_KAP', name: 'A Kapsul', price: 100000, commission: 1000, point: 0.10, category: 'Reguler',
+                      commissionReward: 1000, commissionManagement: 1000, pointReward: 0.10, pointManagement: 0.10,
+                      levels: 3, levelCommissions: [700, 200, 100], levelPoints: [0.07, 0.02, 0.01] },
+                    { code: 'B_KAP', name: 'B Kapsul', price: 100000, commission: 1000, point: 0.10, category: 'Reguler',
+                      commissionReward: 1000, commissionManagement: 1000, pointReward: 0.10, pointManagement: 0.10,
+                      levels: 3, levelCommissions: [700, 200, 100], levelPoints: [0.07, 0.02, 0.01] },
+                    { code: 'C_KAP', name: 'C Kapsul', price: 100000, commission: 1000, point: 0.10, category: 'Reguler',
+                      commissionReward: 1000, commissionManagement: 1000, pointReward: 0.10, pointManagement: 0.10,
+                      levels: 3, levelCommissions: [700, 200, 100], levelPoints: [0.07, 0.02, 0.01] },
+                    { code: 'GM_MAX', name: 'GM Max', price: 100000, commission: 1000, point: 0.10, category: 'Reguler',
+                      commissionReward: 1000, commissionManagement: 1000, pointReward: 0.10, pointManagement: 0.10,
+                      levels: 3, levelCommissions: [700, 200, 100], levelPoints: [0.07, 0.02, 0.01] },
+                    { code: 'MADU_GM', name: 'Madu GM', price: 100000, commission: 1000, point: 0.10, category: 'Reguler',
+                      commissionReward: 1000, commissionManagement: 1000, pointReward: 0.10, pointManagement: 0.10,
+                      levels: 3, levelCommissions: [700, 200, 100], levelPoints: [0.07, 0.02, 0.01] },
+                    { code: 'TEH_BMT', name: 'Teh BMT', price: 20000, commission: 200, point: 0.02, category: 'Reguler',
+                      commissionReward: 200, commissionManagement: 200, pointReward: 0.02, pointManagement: 0.02,
+                      levels: 3, levelCommissions: [140, 40, 20], levelPoints: [0.014, 0.004, 0.002] },
+                    { code: 'TEH_CELUP', name: 'Teh Celup GM', price: 75000, commission: 750, point: 0.08, category: 'Reguler',
+                      commissionReward: 750, commissionManagement: 750, pointReward: 0.08, pointManagement: 0.08,
+                      levels: 3, levelCommissions: [525, 150, 75], levelPoints: [0.0525, 0.015, 0.0075] },
+                    { code: 'GODOGAN', name: 'Godogan', price: 80000, commission: 800, point: 0.08, category: 'Reguler',
+                      commissionReward: 800, commissionManagement: 800, pointReward: 0.08, pointManagement: 0.08,
+                      levels: 3, levelCommissions: [560, 160, 80], levelPoints: [0.056, 0.016, 0.008] },
+                    { code: 'HB_CORE', name: 'HB Core', price: 57000, commission: 570, point: 0.06, category: 'Reguler',
+                      commissionReward: 570, commissionManagement: 570, pointReward: 0.06, pointManagement: 0.06,
+                      levels: 3, levelCommissions: [399, 114, 57], levelPoints: [0.0399, 0.0114, 0.0057] },
+                    { code: 'HXA_GM', name: 'HXA GM Dus', price: 130000, commission: 1300, point: 0.13, category: 'Reguler',
+                      commissionReward: 1300, commissionManagement: 1300, pointReward: 0.13, pointManagement: 0.13,
+                      levels: 3, levelCommissions: [910, 260, 130], levelPoints: [0.091, 0.026, 0.013] },
+                    { code: 'MAGIC_RING', name: 'Magic Ring', price: 50000, commission: 500, point: 0.05, category: 'Reguler',
+                      commissionReward: 500, commissionManagement: 500, pointReward: 0.05, pointManagement: 0.05,
+                      levels: 3, levelCommissions: [350, 100, 50], levelPoints: [0.035, 0.01, 0.005] },
+                    { code: 'GM_OIL', name: 'GM Oil Besar', price: 70000, commission: 700, point: 0.07, category: 'Reguler',
+                      commissionReward: 700, commissionManagement: 700, pointReward: 0.07, pointManagement: 0.07,
+                      levels: 3, levelCommissions: [490, 140, 70], levelPoints: [0.049, 0.014, 0.007] },
+                    { code: 'GMS2', name: 'GMS2', price: 100000, commission: 1000, point: 0.10, category: 'Reguler',
+                      commissionReward: 1000, commissionManagement: 1000, pointReward: 0.10, pointManagement: 0.10,
+                      levels: 3, levelCommissions: [700, 200, 100], levelPoints: [0.07, 0.02, 0.01] },
+                    { code: 'RPGM', name: 'RPGM', price: 50000, commission: 500, point: 0.05, category: 'Reguler',
+                      commissionReward: 500, commissionManagement: 500, pointReward: 0.05, pointManagement: 0.05,
+                      levels: 3, levelCommissions: [350, 100, 50], levelPoints: [0.035, 0.01, 0.005] },
+                    { code: 'SPRAY', name: 'Spray', price: 20000, commission: 200, point: 0.02, category: 'Reguler',
+                      commissionReward: 200, commissionManagement: 200, pointReward: 0.02, pointManagement: 0.02,
+                      levels: 3, levelCommissions: [140, 40, 20], levelPoints: [0.014, 0.004, 0.002] },
+                    { code: 'GURAH_THT', name: 'Gurah THT', price: 40000, commission: 400, point: 0.04, category: 'Reguler',
+                      commissionReward: 400, commissionManagement: 400, pointReward: 0.04, pointManagement: 0.04,
+                      levels: 3, levelCommissions: [280, 80, 40], levelPoints: [0.028, 0.008, 0.004] },
+                    { code: 'GM_MUSTIKA', name: 'GM Mustika', price: 75000, commission: 750, point: 0.08, category: 'Reguler',
+                      commissionReward: 750, commissionManagement: 750, pointReward: 0.08, pointManagement: 0.08,
+                      levels: 3, levelCommissions: [525, 150, 75], levelPoints: [0.0525, 0.015, 0.0075] },
+                    { code: 'GM_FRESH', name: 'GM Fresh', price: 18000, commission: 180, point: 0.02, category: 'Reguler',
+                      commissionReward: 180, commissionManagement: 180, pointReward: 0.02, pointManagement: 0.02,
+                      levels: 3, levelCommissions: [126, 36, 18], levelPoints: [0.0126, 0.0036, 0.0018] },
+                    { code: 'PENDAN_3D', name: 'Pendan Hitam 3D', price: 500000, commission: 5000, point: 0.50, category: 'Premium',
+                      commissionReward: 5000, commissionManagement: 5000, pointReward: 0.50, pointManagement: 0.50,
+                      levels: 3, levelCommissions: [3500, 1000, 500], levelPoints: [0.35, 0.10, 0.05] },
+                    { code: 'GM_PELING', name: 'New GM Peling', price: 50000, commission: 500, point: 0.05, category: 'Reguler',
+                      commissionReward: 500, commissionManagement: 500, pointReward: 0.05, pointManagement: 0.05,
+                      levels: 3, levelCommissions: [350, 100, 50], levelPoints: [0.035, 0.01, 0.005] },
+                    { code: 'GM_PACE', name: 'GM Pace', price: 100000, commission: 1000, point: 0.10, category: 'Reguler',
+                      commissionReward: 1000, commissionManagement: 1000, pointReward: 0.10, pointManagement: 0.10,
+                      levels: 3, levelCommissions: [700, 200, 100], levelPoints: [0.07, 0.02, 0.01] },
+                    { code: 'SPOON_KUNIN', name: 'Spoon Kuningan', price: 75000, commission: 750, point: 0.08, category: 'Reguler',
+                      commissionReward: 750, commissionManagement: 750, pointReward: 0.08, pointManagement: 0.08,
+                      levels: 3, levelCommissions: [525, 150, 75], levelPoints: [0.0525, 0.015, 0.0075] },
+                    { code: 'VITAMAX', name: 'Vitamax', price: 20000, commission: 200, point: 0.02, category: 'Reguler',
+                      commissionReward: 200, commissionManagement: 200, pointReward: 0.02, pointManagement: 0.02,
+                      levels: 3, levelCommissions: [140, 40, 20], levelPoints: [0.014, 0.004, 0.002] },
+                    { code: 'SKINCARE', name: 'GM SKINCARE', price: 300000, commission: 3000, point: 0.30, category: 'Reguler',
+                      commissionReward: 3000, commissionManagement: 3000, pointReward: 0.30, pointManagement: 0.30,
+                      levels: 3, levelCommissions: [2100, 600, 300], levelPoints: [0.21, 0.06, 0.03] },
+                    { code: 'PHERO_BS', name: 'Pheromone Black Series', price: 60000, commission: 600, point: 0.06, category: 'Reguler',
+                      commissionReward: 600, commissionManagement: 600, pointReward: 0.06, pointManagement: 0.06,
+                      levels: 3, levelCommissions: [420, 120, 60], levelPoints: [0.042, 0.012, 0.006] }
+                ];
+
+                this.members = [
+                    { id: 'M001', name: 'Adi Kusumah', upline: null, totalCommission: 0, coordinate: 'Jakarta', status: 'aktif', totalPoints: 0, transactions: 0 },
+                    { id: 'M002', name: 'Budi Santoso', upline: 'M001', totalCommission: 0, coordinate: 'Bandung', status: 'aktif', totalPoints: 0, transactions: 0 },
+                    { id: 'M003', name: 'Citra Dewi', upline: 'M001', totalCommission: 0, coordinate: 'Surabaya', status: 'aktif', totalPoints: 0, transactions: 0 },
+                    { id: 'M004', name: 'Doni Hartono', upline: 'M002', totalCommission: 0, coordinate: 'Medan', status: 'tidak aktif', totalPoints: 0, transactions: 0 }
+                ];
+
+                this.transactions = [];
+            },
+
+            setupEventListeners() {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        const tabName = e.target.dataset.tab;
+                        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                        document.getElementById(tabName).classList.add('active');
+                        
+                        if (tabName === 'recap') {
+                            renderRecapitulation();
+                        } else if (tabName === 'reports') {
+                            // Default open Overview
+                            toggleReportSection('overview');
+                        } else if (tabName === 'network-tree') {
+                            renderNetworkTree();
+                        }
+                    });
+                });
+            },
+            render() {
+                this.renderDashboard();
+                this.renderProducts();
+                this.renderMembers();
+                this.renderTransactions();
+                this.renderCommissions();
+                this.updateModals();
+            },
+            renderDashboard() {
+                document.getElementById('total-members').textContent = this.members.length;
+                document.getElementById('total-products').textContent = this.products.length;
+                document.getElementById('total-transactions').textContent = this.transactions.length;
+
+                const totalCommission = this.transactions.reduce((sum, t) => sum + (t.totalCommission || 0), 0);
+                document.getElementById('total-commission').textContent = this.formatCurrency(totalCommission);
+
+                const tbody = document.querySelector('#recent-commissions tbody');
+                tbody.innerHTML = '';
+                if (this.transactions.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Belum ada data</td></tr>';
+                } else {
+                    this.transactions.slice(-5).reverse().forEach(t => {
+                        const member = this.members.find(m => m.id === t.memberId);
+                        const product = this.products.find(p => p.code === t.productCode);
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${member?.name || 'Unknown'}</td>
+                            <td><span class="level-0">Level 0</span></td>
+                            <td>${product?.name || 'Unknown'} (${t.qty}x)</td>
+                            <td style="font-weight: 600; color: var(--color-success);">${this.formatCurrency(t.totalCommission)}</td>
+                            <td>${t.date || new Date().toLocaleDateString('id-ID')}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
+            },
+            renderProducts() {
+                const tbody = document.querySelector('#products-table tbody');
+                tbody.innerHTML = '';
+                this.products.forEach(p => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${p.code}</strong></td>
+                        <td>${p.name}</td>
+                        <td>${this.formatCurrency(p.price)}</td>
+                        <td>${this.formatCurrency(p.commission)}</td>
+                        <td>${p.point.toFixed(2)}</td>
+                        <td><span class="badge badge-success">${p.category}</span></td>
+                        <td>
+                            <button class="btn btn-small btn-secondary" onclick="openEditProductModal('${p.code}')">✏️</button>
+                            <button class="btn btn-small btn-secondary" style="color: var(--color-error);" onclick="app.deleteProduct('${p.code}')">🗑️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            },
+            renderMembers() {
+                const tbody = document.querySelector('#members-table tbody');
+                tbody.innerHTML = '';
+                this.members.forEach(m => {
+                    const uplineName = this.members.find(u => u.id === m.upline)?.name || '-';
+                    const statusClass = m.status === 'aktif' ? 'badge-success' : 'badge-inactive';
+                    const statusText = m.status === 'aktif' ? 'Aktif' : 'Tidak Aktif';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${m.id}</strong></td>
+                        <td>${m.name}</td>
+                        <td>${uplineName}</td>
+                        <td>${m.coordinate || '-'}</td>
+                        <td style="color: var(--color-success); font-weight: 600;">${this.formatCurrency(m.totalCommission)}</td>
+                        <td><span class="badge ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button class="btn btn-small btn-secondary" onclick="openEditMemberModal('${m.id}')">✏️</button>
+                            <button class="btn btn-small btn-secondary" style="color: var(--color-error);" onclick="app.deleteMember('${m.id}')">🗑️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            },
+            renderTransactions() {
+                const tbody = document.querySelector('#transactions-table tbody');
+                tbody.innerHTML = '';
+                this.transactions.forEach((t, idx) => {
+                    const member = this.members.find(m => m.id === t.memberId);
+                    const product = this.products.find(p => p.code === t.productCode);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${idx + 1}</td>
+                        <td>${t.date || '-'}</td>
+                        <td>${member?.name || 'Unknown'}</td>
+                        <td>${product?.name || 'Unknown'}</td>
+                        <td>${t.qty}</td>
+                        <td>${this.formatCurrency(t.value)}</td>
+                        <td style="color: var(--color-success); font-weight: 600;">${this.formatCurrency(t.totalCommission)}</td>
+                        <td>
+                            <button class="btn btn-small btn-secondary" style="color: var(--color-error);" onclick="deleteTransaction(${idx})">🗑️</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            },
+            renderCommissions() {
+                const tbody = document.querySelector('#commissions-table tbody');
+                tbody.innerHTML = '';
+
+                this.members.forEach(member => {
+                    const commissions = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                    
+                    this.transactions.forEach(t => {
+                        const product = this.products.find(p => p.code === t.productCode);
+                        if (!product) return;
+
+                        if (t.memberId === member.id) {
+                            commissions[0] += product.levelCommissions[0] * t.qty;
+                        }
+
+                        const memberHierarchy = this.getMemberHierarchy(t.memberId);
+                        const levelIndex = memberHierarchy.indexOf(member.id);
+                        
+                        if (levelIndex > 0 && levelIndex < product.levels) {
+                            commissions[levelIndex] += product.levelCommissions[levelIndex] * t.qty;
+                        }
+                    });
+
+                    const total = Object.values(commissions).reduce((a, b) => a + b, 0);
+                    if (total > 0) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><strong>${member.name}</strong></td>
+                            <td class="level-0">${this.formatCurrency(commissions[0])}</td>
+                            <td class="level-1">${this.formatCurrency(commissions[1])}</td>
+                            <td class="level-2">${this.formatCurrency(commissions[2])}</td>
+                            <td class="level-3">${this.formatCurrency(commissions[3])}</td>
+                            <td class="level-4">${this.formatCurrency(commissions[4])}</td>
+                            <td class="level-5">${this.formatCurrency(commissions[5])}</td>
+                            <td style="font-weight: 700; color: var(--color-primary);">${this.formatCurrency(total)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                });
+
+                if (tbody.innerHTML === '') {
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #999;">Belum ada komisi</td></tr>';
+                }
+            },
+            getMemberHierarchy(memberId) {
+                const hierarchy = [memberId];
+                let current = memberId;
+                
+                while (current) {
+                    const member = this.members.find(m => m.id === current);
+                    if (member && member.upline) {
+                        hierarchy.push(member.upline);
+                        current = member.upline;
+                    } else {
+                        break;
+                    }
+                }
+                
+                return hierarchy;
+            },
+            updateModals() {
+                const memberSelect = document.getElementById('transactionMember');
+                const uplineSelect = document.getElementById('memberUpline');
+                const productSelect = document.getElementById('transactionProduct');
+
+                memberSelect.innerHTML = '<option value="">-- Pilih Member --</option>';
+                uplineSelect.innerHTML = '<option value="">-- Tidak Ada --</option>';
+                productSelect.innerHTML = '<option value="">-- Pilih Produk --</option>';
+
+                this.members.forEach(m => {
+                    memberSelect.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+                    uplineSelect.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+                });
+
+                this.products.forEach(p => {
+                    productSelect.innerHTML += `<option value="${p.code}">${p.name} - ${this.formatCurrency(p.price)}</option>`;
+                });
+
+                const reportMemberFilter = document.getElementById('reportMemberFilter');
+                if(reportMemberFilter) {
+                    reportMemberFilter.innerHTML = '<option value="">-- Semua Member --</option>';
+                    this.members.forEach(m => {
+                        reportMemberFilter.innerHTML += `<option value="${m.id}">${m.id} - ${m.name}</option>`;
+                    });
+                }
+            },
+            formatCurrency(value) {
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0
+                }).format(value);
+            },
+            deleteMember(id) {
+                if (confirm(`Hapus member ${id}?`)) {
+                    this.members = this.members.filter(m => m.id !== id);
+                    this.saveData(); 
+                    this.render();
+                }
+            },
+            deleteProduct(code) {
+                if (confirm(`Hapus produk ${code}?`)) {
+                    this.products = this.products.filter(p => p.code !== code);
+                    this.saveData();
+                    this.render();
+                }
+            }
+        };
+
+        function parseCSVLine(line, delimiter) {
+            let cols = [];
+            let currentCol = '';
+            let inQuote = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuote = !inQuote;
+                } else if (char === delimiter && !inQuote) {
+                    cols.push(currentCol.trim());
+                    currentCol = '';
+                } else {
+                    currentCol += char;
+                }
+            }
+            cols.push(currentCol.trim()); 
+            return cols;
+        }
+
+        function importMembersFromCSV() {
+            const fileInput = document.getElementById('importMemberFile');
+            const file = fileInput.files[0];
+            if (!file) { alert('Silakan pilih file .csv terlebih dahulu!'); return; }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    const firstLine = text.split(/\r?\n/)[0];
+                    const commaCount = (firstLine.match(/,/g) || []).length;
+                    const semicolonCount = (firstLine.match(/;/g) || []).length;
+                    let delimiter = (semicolonCount > commaCount) ? ';' : ',';
+
+                    const rows = text.split(/\r?\n/);
+                    let startIndex = (rows[0].toLowerCase().includes('id') || rows[0].toLowerCase().includes('nama member')) ? 1 : 0;
+
+                    let addedCount = 0;
+                    let skippedCount = 0;
+                    let pendingUplines = [];
+
+                    for (let i = startIndex; i < rows.length; i++) {
+                        const rowText = rows[i].trim();
+                        if (!rowText) continue;
+
+                        const cols = parseCSVLine(rowText, delimiter);
+                        if (cols.length < 2) continue;
+
+                        const memberId = cols[0].replace(/^"|"$/g, '');
+                        const memberName = cols[1].replace(/^"|"$/g, '');
+                        const uplineName = cols[2] ? cols[2].replace(/^"|"$/g, '') : '';
+                        const coordinate = cols[3] ? cols[3].replace(/^"|"$/g, '') : '';
+                        const status = cols[4] ? cols[4].replace(/^"|"$/g, '').toLowerCase() : 'aktif';
+                        const totalCommission = parseFloat(cols[5] ? cols[5].replace(/[^\d.,]/g, '') : 0);
+
+                        if (!memberId || !memberName) { skippedCount++; continue; }
+                        if (app.members.find(m => m.id === memberId)) { skippedCount++; continue; }
+
+                        app.members.push({
+                            id: memberId, name: memberName, upline: null, totalCommission: totalCommission,
+                            coordinate: coordinate, status: (status === 'aktif' || status === 'active') ? 'aktif' : 'tidak aktif',
+                            totalPoints: 0, transactions: 0, _tempUplineName: uplineName
+                        });
+
+                        pendingUplines.push({ memberId, uplineName });
+                        addedCount++;
+                    }
+
+                    pendingUplines.forEach(item => {
+                        const member = app.members.find(m => m.id === item.memberId);
+                        if (member) {
+                            const uplineMember = app.members.find(m => m.name === item.uplineName);
+                            if (uplineMember) member.upline = uplineMember.id;
+                        }
+                    });
+
+                    app.saveData(); app.render();
+                    alert(`Data member selesai diimpor.\n\n✅ Berhasil ditambahkan: ${addedCount} member.\n🔗 Relasi Upline otomatis disetelkan.`);
+                    fileInput.value = '';
+                } catch (err) { alert('Gagal membaca file CSV: ' + err.message); }
+            };
+            reader.readAsText(file);
+        }
+
+        function downloadTransactionTemplate() {
+            // Updated Template: Removed Value and Commission columns
+            const headers = ["No", "Tanggal", "Member", "Produk", "Jumlah"];
+            const sample1 = ["1", "2023-10-27", "Adi Kusumah", "Pheromone", "2"];
+            const sample2 = ["2", "", "Budi Santoso", "Pendan Wulung", "1"];
+            
+            const csvContent = "data:text/csv;charset=utf-8,"
+                + headers.join(",") + "\n"
+                + sample1.join(",") + "\n"
+                + sample2.join(",");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "template_transaksi_sederhana.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- REVISED IMPORT TRANSACTION LOGIC ---
+        function importTransactionsFromCSV() {
+            const fileInput = document.getElementById('importTransactionFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Silakan pilih file .csv terlebih dahulu!');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const text = e.target.result;
+                    
+                    // 1. Deteksi Pemisah
+                    const firstLine = text.split(/\r?\n/)[0];
+                    const commaCount = (firstLine.match(/,/g) || []).length;
+                    const semicolonCount = (firstLine.match(/;/g) || []).length;
+                    let delimiter = (semicolonCount > commaCount) ? ';' : ',';
+
+                    const rows = text.split(/\r?\n/);
+                    
+                    // 2. Mapping Header Indices (Dynamic)
+                    let startIndex = 0;
+                    let idxDate = -1, idxMember = -1, idxProduct = -1, idxQty = -1;
+
+                    // Cari header
+                    const headers = rows[0].split(delimiter).map(h => h.trim().toLowerCase());
+                    
+                    // Cek apakah baris pertama adalah header atau data
+                    const isHeader = headers.some(h => h.includes('member') || h.includes('produk') || h.includes('tanggal'));
+                    
+                    if (isHeader) {
+                        idxDate = headers.indexOf('tanggal');
+                        idxMember = headers.indexOf('member');
+                        idxProduct = headers.indexOf('produk');
+                        idxQty = headers.findIndex(h => h.includes('jumlah') || h === 'qty');
+                        startIndex = 1;
+                    } else {
+                        // Jika tidak ada header, asumsi urutan standar: No, Tgl, Member, Produk, Qty
+                        idxDate = 1;
+                        idxMember = 2;
+                        idxProduct = 3;
+                        idxQty = 4;
+                    }
+
+                    let successCount = 0;
+                    let failCount = 0;
+                    let failDetails = [];
+
+                    // 3. Loop Data
+                    for (let i = startIndex; i < rows.length; i++) {
+                        const rowText = rows[i].trim();
+                        if (!rowText) continue;
+
+                        const cols = parseCSVLine(rowText, delimiter);
+                        
+                        // Ambil data berdasarkan index dinamis
+                        const dateStr = (idxDate >= 0 && cols[idxDate]) ? cols[idxDate].replace(/^"|"$/g, '') : '';
+                        const memberName = (idxMember >= 0 && cols[idxMember]) ? cols[idxMember].replace(/^"|"$/g, '').trim() : '';
+                        const productName = (idxProduct >= 0 && cols[idxProduct]) ? cols[idxProduct].replace(/^"|"$/g, '').trim() : '';
+                        const qty = (idxQty >= 0 && cols[idxQty]) ? parseFloat(cols[idxQty].replace(/[^\d.,]/g, '')) : 0;
+
+                        // Validasi Dasar
+                        if (!memberName || !productName || !qty || qty <= 0) {
+                            failCount++;
+                            failDetails.push(`Baris ${i+1}: Data kurang lengkap (Member, Produk, atau Qty kosong).`);
+                            continue;
+                        }
+
+                        // 4. Cari Produk berdasarkan NAMA (Case Insensitive)
+                        // Prioritaskan pencocokan Nama
+                        const product = app.products.find(p => p.name.toLowerCase() === productName.toLowerCase());
+                        
+                        if (!product) {
+                            console.warn(`Produk tidak ditemukan: ${productName}`);
+                            failCount++;
+                            failDetails.push(`Baris ${i+1}: Produk '${productName}' tidak ditemukan di database.`);
+                            continue;
+                        }
+
+                        // 5. Cari Member berdasarkan Nama atau ID
+                        const member = app.members.find(m => 
+                            m.name.toLowerCase() === memberName.toLowerCase() || 
+                            m.id.toLowerCase() === memberName.toLowerCase()
+                        );
+
+                        if (!member) {
+                            console.warn(`Member tidak ditemukan: ${memberName}`);
+                            failCount++;
+                            failDetails.push(`Baris ${i+1}: Member '${memberName}' tidak ditemukan di database.`);
+                            continue;
+                        }
+
+                        // 6. Logic Tanggal
+                        let finalDate = new Date().toLocaleDateString('id-ID');
+                        if (dateStr) {
+                            const d = new Date(dateStr);
+                            if (!isNaN(d.getTime())) {
+                                finalDate = d.toLocaleDateString('id-ID');
+                            }
+                        }
+
+                        // 7. HITUNG NILAI & KOMISI SECARA OTOMATIS (Mengabaikan CSV Value/Komisi)
+                        const value = product.price * qty;
+                        const totalCommission = product.levelCommissions[0] * qty; 
+
+                        app.transactions.push({
+                            memberId: member.id,
+                            productCode: product.code,
+                            qty: qty,
+                            value: value,
+                            totalCommission: totalCommission,
+                            date: finalDate
+                        });
+
+                        // Update Member Stats
+                        member.totalCommission += totalCommission;
+                        member.transactions += 1;
+
+                        successCount++;
+                    }
+
+                    app.saveData();
+                    app.render();
+
+                    let msg = `Import Selesai.\n\n✅ Berhasil: ${successCount} transaksi.\n❌ Gagal: ${failCount} baris.`;
+                    
+                    if (failCount > 0) {
+                        msg += `\n\nDetail Error:\n`;
+                        failDetails.slice(0, 5).forEach(detail => msg += `- ${detail}\n`);
+                        if(failDetails.length > 5) msg += `... dan ${failDetails.length - 5} error lainnya.`;
+                    }
+                    
+                    alert(msg);
+                    fileInput.value = '';
+
+                } catch (err) {
+                    alert('Gagal membaca file CSV: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function toggleReportSection(id) {
+            document.querySelectorAll('.report-body').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.report-accordion').forEach(el => el.classList.remove('active'));
+
+            const target = document.getElementById(id);
+            const parent = document.getElementById('acc-' + id);
+            
+            target.classList.add('active');
+            parent.classList.add('active');
+
+            if(id === 'overview') renderOverviewReport();
+            else if(id === 'memberdetail') renderMemberDetailReport();
+            else if(id === 'ranking') renderRankingTable();
+        }
+
+        function renderNetworkTree() {
+            const treeContainer = document.getElementById('network-tree-root');
+            treeContainer.innerHTML = ''; 
+
+            const roots = app.members.filter(m => !m.upline);
+            if (roots.length === 0) {
+                treeContainer.innerHTML = '<div style="text-align:center; color:#999; padding:20px;">Belum ada data member.</div>';
+                return;
+            }
+
+            let html = '<ul class="tree">';
+            roots.forEach(root => { html += createTreeNodeHTML(root); });
+            html += '</ul>';
+            treeContainer.innerHTML = html;
+        }
+
+        function createTreeNodeHTML(member) {
+            const children = app.members.filter(m => m.upline === member.id);
+            const statusClass = member.status === 'aktif' ? 'badge-success' : 'badge-inactive';
+            const statusText = member.status === 'aktif' ? 'Aktif' : 'Tidak Aktif';
+
+            let html = `
+                <li>
+                    <div class="member-node-card">
+                        <div class="node-header">
+                            <span class="node-id">${member.id}</span>
+                            <span class="node-name">${member.name}</span>
+                        </div>
+                        <div class="node-stats">
+                            <div class="node-stat"><span class="val">${app.formatCurrency(member.totalCommission)}</span> Komisi</div>
+                            <div class="node-stat"><span class="val">${member.transactions}</span> Trans</div>
+                        </div>
+                        <span class="badge ${statusClass}" style="font-size: 10px; margin-top:4px; display:inline-block;">${statusText}</span>
+            `;
+
+            if (children.length > 0) {
+                html += `<button class="btn-expand" onclick="toggleTreeNode(this)" style="display:block;">Lihat Downline (${children.length})</button><ul style="display: none;">`;
+                children.forEach(child => { html += createTreeNodeHTML(child); });
+                html += `</ul>`;
+            } 
+
+            html += `</div></li>`;
+            return html;
+        }
+
+        window.toggleTreeNode = function(btn) {
+            const ul = btn.nextElementSibling;
+            if (ul) {
+                if (ul.style.display === 'none' || ul.style.display === '') {
+                    ul.style.display = 'block';
+                    btn.textContent = 'Sembunyikan Downline';
+                    btn.style.background = '#fca5a5';
+                    btn.style.color = 'white';
+                } else {
+                    ul.style.display = 'none';
+                    const childCount = ul.children.length; 
+                    btn.textContent = `Lihat Downline (${childCount})`;
+                    btn.style.background = '#e0f2fe';
+                    btn.style.color = '#0369a1';
+                }
+            }
+        }
+
+        function exportToExcel() {
+            if (app.transactions.length === 0) {
+                alert('Belum ada data transaksi untuk diexport.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "No,Tanggal,ID Member,Nama Member,Produk,Jumlah,Total Nilai,Total Komisi\n";
+
+            app.transactions.forEach((t, index) => {
+                const member = app.members.find(m => m.id === t.memberId);
+                const product = app.products.find(p => p.code === t.productCode);
+                
+                const row = [
+                    index + 1,
+                    t.date,
+                    t.memberId,
+                    member ? member.name : "Unknown",
+                    product ? product.name : "Unknown",
+                    t.qty,
+                    t.value,
+                    t.totalCommission
+                ];
+                
+                const rowString = row.map(item => `"${item}"`).join(",");
+                csvContent += rowString + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            const date = new Date().toISOString().split('T')[0];
+            link.setAttribute("download", `transaksi_export_${date}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function openAddProductModal() {
+            document.getElementById('productModalTitle').innerText = 'Tambah Produk Baru';
+            document.getElementById('productOriginalCode').value = '';
+            document.querySelector('#productModal form').reset();
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function openEditProductModal(code) {
+            const product = app.products.find(p => p.code === code);
+            if (!product) return;
+
+            document.getElementById('productModalTitle').innerText = 'Edit Produk';
+            document.getElementById('productOriginalCode').value = product.code;
+            
+            document.getElementById('productCode').value = product.code;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productCommission').value = product.commission;
+            document.getElementById('productPoint').value = product.point;
+            document.getElementById('productCategory').value = product.category;
+
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        function addProduct(e) {
+            e.preventDefault();
+            const originalCode = document.getElementById('productOriginalCode').value;
+            const code = document.getElementById('productCode').value;
+            const commission = parseFloat(document.getElementById('productCommission').value);
+            const point = parseFloat(document.getElementById('productPoint').value);
+            const isPendan = code.toUpperCase().includes('PENDAN');
+            
+            const productData = {
+                code: code,
+                name: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('productPrice').value),
+                commission: commission,
+                point: point,
+                category: document.getElementById('productCategory').value,
+                levels: isPendan ? 6 : 3,
+                levelCommissions: isPendan 
+                    ? [commission * 0.7, commission * 0.1, commission * 0.08, commission * 0.06, commission * 0.04, commission * 0.02] 
+                    : [commission * 0.7, commission * 0.2, commission * 0.1],
+                levelPoints: isPendan
+                    ? [point * 0.7, point * 0.1, point * 0.08, point * 0.06, point * 0.04, point * 0.02]
+                    : [point * 0.7, point * 0.2, point * 0.1],
+                commissionReward: isPendan ? commission * 0.7 : commission,
+                commissionManagement: isPendan ? commission * 0.3 : commission,
+                pointReward: isPendan ? point * 0.7 : point,
+                pointManagement: isPendan ? point * 0.3 : point
+            };
+
+            if (originalCode) {
+                const index = app.products.findIndex(p => p.code === originalCode);
+                if (index !== -1) app.products[index] = productData;
+            } else {
+                if (app.products.find(p => p.code === code)) {
+                    alert(`Kode Produk "${code}" sudah ada! Gunakan kode lain.`);
+                    return;
+                }
+                app.products.push(productData);
+            }
+
+            app.saveData();
+            closeModal('productModal');
+            app.render();
+            document.querySelector('#productModal form').reset();
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify({
+                products: app.products,
+                members: app.members,
+                transactions: app.transactions,
+                exportedAt: new Date().toISOString()
+            }, null, 2);
+            
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const date = new Date().toISOString().split('T')[0];
+            a.download = `mlm_backup_${date}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('importFile');
+            const file = fileInput.files[0];
+            if (!file) { alert('Silakan pilih file .json terlebih dahulu!'); return; }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!Array.isArray(data.products) || !Array.isArray(data.members) || !Array.isArray(data.transactions)) {
+                        throw new Error('Format file tidak valid!');
+                    }
+
+                    if(confirm(`Data ditemukan:\n- ${data.members.length} Member\n- ${data.products.length} Produk\n- ${data.transactions.length} Transaksi\n\nApakah Anda ingin MENIMPA data yang ada sekarang?`)) {
+                        app.products = data.products;
+                        app.members = data.members;
+                        app.transactions = data.transactions;
+                        
+                        app.saveData();
+                        app.render();
+                        alert('Data berhasil dipulihkan!');
+                        fileInput.value = ''; 
+                    }
+                } catch (err) {
+                    alert('Gagal membaca file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function renderRecapitulation() {
+            renderProductAccumulation();
+            renderSummaryBeforeSplit();
+            renderSummaryAfterSplit();
+        }
+
+        function renderProductAccumulation() {
+            const tbody = document.querySelector('#product-accumulation-table tbody');
+            tbody.innerHTML = '';
+            let totalAccumulation = 0;
+
+            app.products.forEach(product => {
+                const qty = app.transactions
+                    .filter(t => t.productCode === product.code)
+                    .reduce((sum, t) => sum + t.qty, 0);
+                totalAccumulation += qty;
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${product.name}</td><td style="text-align: right;">${qty}</td>`;
+                tbody.appendChild(row);
+            });
+
+            const totalRow = document.createElement('tr');
+            totalRow.className = 'total-row';
+            totalRow.innerHTML = `<td><strong>TOTAL AKUMULASI</strong></td><td style="text-align: right;"><strong>${totalAccumulation}</strong></td>`;
+            tbody.appendChild(totalRow);
+        }
+
+        function renderSummaryBeforeSplit() {
+            const totalOmset = app.transactions.reduce((sum, t) => sum + t.value, 0);
+            let totalCommBefore = 0;
+            let totalPointBefore = 0;
+            
+            app.transactions.forEach(t => {
+                const product = app.products.find(p => p.code === t.productCode);
+                if (product) {
+                    totalCommBefore += (product.commissionReward + product.commissionManagement) * t.qty;
+                    totalPointBefore += (product.pointReward + product.pointManagement) * t.qty;
+                }
+            });
+
+            document.getElementById('totalOmsetBefore').textContent = app.formatCurrency(totalOmset);
+            document.getElementById('totalCommBefore').textContent = app.formatCurrency(totalCommBefore);
+            document.getElementById('totalPointBefore').textContent = totalPointBefore.toFixed(2);
+        }
+
+        function renderSummaryAfterSplit() {
+            const totalOmset = app.transactions.reduce((sum, t) => sum + t.value, 0);
+            let totalCommDistributed = 0;
+            let totalPointDistributed = 0;
+            let totalCommReward = 0;
+            let totalCommManagement = 0;
+            let totalPointReward = 0;
+            let totalPointManagement = 0;
+
+            app.transactions.forEach(t => {
+                const product = app.products.find(p => p.code === t.productCode);
+                if (!product) return;
+
+                const hierarchy = app.getMemberHierarchy(t.memberId);
+                hierarchy.forEach((memberId, levelIdx) => {
+                    if (levelIdx < product.levels) {
+                        totalCommDistributed += product.levelCommissions[levelIdx] * t.qty;
+                        totalPointDistributed += product.levelPoints[levelIdx] * t.qty;
+                    }
+                });
+
+                totalCommReward += product.commissionReward * t.qty;
+                totalCommManagement += product.commissionManagement * t.qty;
+                totalPointReward += product.pointReward * t.qty;
+                totalPointManagement += product.pointManagement * t.qty;
+            });
+
+            const remainingComm = totalCommReward - totalCommDistributed;
+            const remainingPoint = totalPointReward - totalPointDistributed;
+            const totalCommFinal = totalCommDistributed + remainingComm + totalCommManagement;
+            const totalPointFinal = totalPointDistributed + remainingPoint + totalPointManagement;
+
+            document.getElementById('omsetAfter').textContent = app.formatCurrency(totalOmset);
+            document.getElementById('commRewardAfter').textContent = app.formatCurrency(totalCommReward);
+            document.getElementById('pointRewardAfter').textContent = totalPointReward.toFixed(2);
+            document.getElementById('commManagementAfter').textContent = app.formatCurrency(totalCommManagement);
+            document.getElementById('pointManagementAfter').textContent = totalPointManagement.toFixed(2);
+            document.getElementById('allocationRewardDist').textContent = app.formatCurrency(totalCommDistributed);
+            document.getElementById('allocationPointDist').textContent = totalPointDistributed.toFixed(2);
+            document.getElementById('remainingComm').textContent = app.formatCurrency(remainingComm);
+            document.getElementById('remainingPoint').textContent = remainingPoint.toFixed(2);
+            document.getElementById('totalCommFinal').textContent = app.formatCurrency(totalCommFinal);
+            document.getElementById('totalPointFinal').textContent = totalPointFinal.toFixed(2);
+        }
+
+        function renderOverviewReport() {
+            const tbody = document.querySelector('#report-table tbody');
+            tbody.innerHTML = '';
+
+            const memberReports = [];
+
+            app.members.forEach(member => {
+                let totalSales = 0;
+                let totalComm = 0;
+                let totalPoints = 0;
+                let maxLevel = 0;
+                
+                app.transactions.forEach(t => {
+                    if (t.memberId === member.id) {
+                        const product = app.products.find(p => p.code === t.productCode);
+                        if (product) {
+                            totalSales += t.value;
+                            totalComm += product.levelCommissions[0] * t.qty;
+                            totalPoints += product.levelPoints[0] * t.qty;
+                            maxLevel = Math.max(maxLevel, 0);
+                        }
+                    }
+                });
+                
+                app.transactions.forEach(t => {
+                    const product = app.products.find(p => p.code === t.productCode);
+                    if (product) {
+                        const hierarchy = app.getMemberHierarchy(t.memberId);
+                        const levelIdx = hierarchy.indexOf(member.id);
+                        if (levelIdx > 0 && levelIdx < product.levels) {
+                            totalComm += product.levelCommissions[levelIdx] * t.qty;
+                            totalPoints += product.levelPoints[levelIdx] * t.qty;
+                            maxLevel = Math.max(maxLevel, levelIdx);
+                        }
+                    }
+                });
+                
+                if (totalSales > 0 || totalComm > 0) {
+                    memberReports.push({
+                        name: member.name,
+                        sales: totalSales,
+                        commission: totalComm,
+                        points: totalPoints,
+                        level: maxLevel
+                    });
+                }
+            });
+
+            if (memberReports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999;">Belum ada data</td></tr>';
+                return;
+            }
+
+            memberReports.forEach(report => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${report.name}</strong></td>
+                    <td>${app.formatCurrency(report.sales)}</td>
+                    <td style="color: var(--color-success); font-weight: 600;">${app.formatCurrency(report.commission)}</td>
+                    <td style="color: var(--color-primary); font-weight: 600;">${report.points.toFixed(2)}</td>
+                    <td>Level ${report.level}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderRankingTable() {
+            const tbody = document.querySelector('#ranking-table tbody');
+            tbody.innerHTML = '';
+
+            const memberPoints = {};
+            const memberStats = {};
+
+            app.members.forEach(m => {
+                memberPoints[m.id] = 0;
+                memberStats[m.id] = {
+                    name: m.name,
+                    upline: app.members.find(u => u.id === m.upline)?.name || '-',
+                    commission: 0,
+                    transactions: 0
+                };
+            });
+
+            app.transactions.forEach(t => {
+                const product = app.products.find(p => p.code === t.productCode);
+                if (!product) return;
+
+                if (memberPoints[t.memberId] !== undefined) {
+                    memberPoints[t.memberId] += product.levelPoints[0] * t.qty;
+                    memberStats[t.memberId].transactions += 1;
+                    memberStats[t.memberId].commission += product.levelCommissions[0] * t.qty;
+                }
+
+                const hierarchy = app.getMemberHierarchy(t.memberId);
+                hierarchy.forEach((mId, levelIdx) => {
+                    if (levelIdx > 0 && levelIdx < product.levels && memberPoints[mId] !== undefined) {
+                        memberPoints[mId] += product.levelPoints[levelIdx] * t.qty;
+                        memberStats[mId].commission += product.levelCommissions[levelIdx] * t.qty;
+                    }
+                });
+            });
+
+            const ranking = Object.entries(memberPoints)
+                .map(([memberId, points]) => ({
+                    memberId,
+                    points,
+                    ...memberStats[memberId]
+                }))
+                .filter(item => item.points > 0)
+                .sort((a, b) => b.points - a.points);
+
+            if (ranking.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #999;">Belum ada point</td></tr>';
+                return;
+            }
+
+            ranking.forEach((item, idx) => {
+                const medalEmoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '•';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="font-weight: 700; font-size: 16px; text-align: center;">
+                        ${medalEmoji} #${idx + 1}
+                    </td>
+                    <td><strong>${item.memberId}</strong></td>
+                    <td>${item.name}</td>
+                    <td style="font-weight: 700; color: var(--color-primary); font-size: 16px; text-align: center;">
+                        ${item.points.toFixed(2)}
+                    </td>
+                    <td style="color: var(--color-success); font-weight: 600;">${app.formatCurrency(item.commission)}</td>
+                    <td>${item.upline}</td>
+                    <td style="text-align: center;">${item.transactions}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderMemberDetailReport() {
+            const selectedMemberId = document.getElementById('reportMemberFilter').value;
+            const tbody = document.querySelector('#member-detail-table tbody');
+            const summaryContainer = document.getElementById('memberSummaryContainer');
+            
+            tbody.innerHTML = '';
+
+            let reportTransactions = app.transactions;
+            if (selectedMemberId) {
+                reportTransactions = app.transactions.filter(t => 
+                    t.memberId === selectedMemberId || 
+                    app.getMemberHierarchy(t.memberId).includes(selectedMemberId)
+                );
+            }
+
+            if (reportTransactions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #999;">Belum ada data</td></tr>';
+                summaryContainer.style.display = 'none';
+                return;
+            }
+
+            let rowNum = 1;
+            let totalValue = 0;
+            let totalCommission = 0;
+            const levelBreakdown = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+            reportTransactions.forEach(t => {
+                const member = app.members.find(m => m.id === t.memberId);
+                const product = app.products.find(p => p.code === t.productCode);
+                if (!product) return;
+
+                const hierarchy = app.getMemberHierarchy(t.memberId);
+                const levelCommissions = [0, 0, 0, 0, 0, 0];
+                
+                hierarchy.forEach((mId, levelIdx) => {
+                    if (levelIdx < product.levels) {
+                        levelCommissions[levelIdx] = product.levelCommissions[levelIdx] * t.qty;
+                    }
+                });
+
+                let memberCommission = 0;
+                if (selectedMemberId) {
+                    const memberLevelIdx = hierarchy.indexOf(selectedMemberId);
+                    if (memberLevelIdx >= 0 && memberLevelIdx < product.levels) {
+                        memberCommission = levelCommissions[memberLevelIdx];
+                        levelBreakdown[memberLevelIdx] += memberCommission;
+                    }
+                } else {
+                    hierarchy.forEach((mId, levelIdx) => {
+                        if (levelIdx < product.levels) {
+                            levelBreakdown[levelIdx] += levelCommissions[levelIdx];
+                        }
+                    });
+                    memberCommission = levelCommissions[0];
+                }
+
+                totalValue += t.value;
+                totalCommission += memberCommission;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${rowNum++}</td>
+                    <td><strong>${member?.name || 'Unknown'}</strong></td>
+                    <td>${t.date || new Date().toLocaleDateString('id-ID')}</td>
+                    <td>${product?.name || 'Unknown'}</td>
+                    <td>${t.qty}</td>
+                    <td>${app.formatCurrency(t.value)}</td>
+                    <td style="color: #c0152f; font-weight: 600;">${app.formatCurrency(levelCommissions[0])}</td>
+                    <td style="color: #e6814d; font-weight: 600;">${app.formatCurrency(levelCommissions[1])}</td>
+                    <td style="color: #208090; font-weight: 600;">${app.formatCurrency(levelCommissions[2])}</td>
+                    <td style="color: #2d7ab6; font-weight: 600;">${app.formatCurrency(levelCommissions[3] + levelCommissions[4] + levelCommissions[5])}</td>
+                    <td style="color: var(--color-success); font-weight: 700;">${app.formatCurrency(memberCommission)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            summaryContainer.style.display = 'block';
+            document.getElementById('memberTotalTrans').textContent = reportTransactions.length;
+            document.getElementById('memberTotalValue').textContent = app.formatCurrency(totalValue);
+            document.getElementById('memberTotalComm').textContent = app.formatCurrency(totalCommission);
+
+            const levelTbody = document.querySelector('#member-level-breakdown tbody');
+            levelTbody.innerHTML = '';
+            const levelNames = ['Level 0 (Direct)', 'Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'];
+            const nonZeroLevels = Object.entries(levelBreakdown).filter(([k, v]) => v > 0);
+
+            if (nonZeroLevels.length === 0) {
+                levelTbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999;">Tidak ada komisi</td></tr>';
+            } else {
+                nonZeroLevels.forEach(([levelIdx, amount]) => {
+                    const percentage = totalCommission > 0 ? ((amount / totalCommission) * 100).toFixed(2) : 0;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${levelNames[levelIdx]}</strong></td>
+                        <td style="font-weight: 600; color: var(--color-success);">${app.formatCurrency(amount)}</td>
+                        <td>${percentage}%</td>
+                    `;
+                    levelTbody.appendChild(row);
+                });
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+
+        function closeSidebarMobile() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+            }
+        }
+
+        function openAddMemberModal() {
+            document.getElementById('memberModalTitle').textContent = 'Tambah Member Baru';
+            document.getElementById('memberEditMode').value = 'false';
+            document.getElementById('memberOriginalId').value = '';
+            const nextId = 'M' + (app.members.length + 1).toString().padStart(3, '0');
+            document.getElementById('memberId').value = nextId;
+            document.getElementById('memberName').value = '';
+            document.getElementById('memberUpline').value = '';
+            document.getElementById('memberCoordinate').value = '';
+            document.getElementById('memberStatus').value = 'aktif';
+            document.getElementById('memberModal').classList.add('active');
+        }
+
+        function openEditMemberModal(memberId) {
+            const member = app.members.find(m => m.id === memberId);
+            if (!member) return;
+
+            document.getElementById('memberModalTitle').textContent = 'Edit Member';
+            document.getElementById('memberEditMode').value = 'true';
+            document.getElementById('memberOriginalId').value = memberId;
+            
+            document.getElementById('memberId').value = member.id;
+            document.getElementById('memberName').value = member.name;
+            document.getElementById('memberUpline').value = member.upline || '';
+            document.getElementById('memberCoordinate').value = member.coordinate || '';
+            document.getElementById('memberStatus').value = member.status || 'aktif';
+
+            document.getElementById('memberModal').classList.add('active');
+        }
+
+        function openAddTransactionModal() {
+            document.getElementById('transactionDate').valueAsDate = new Date();
+            document.getElementById('transactionModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function saveMember(e) {
+            e.preventDefault();
+            
+            const isEditMode = document.getElementById('memberEditMode').value === 'true';
+            const originalId = document.getElementById('memberOriginalId').value;
+            const newId = document.getElementById('memberId').value.trim();
+            const name = document.getElementById('memberName').value.trim();
+            const upline = document.getElementById('memberUpline').value || null;
+            const coordinate = document.getElementById('memberCoordinate').value.trim();
+            const status = document.getElementById('memberStatus').value;
+
+            if (!newId) { alert('ID Member tidak boleh kosong!'); return; }
+
+            if (isEditMode) {
+                const member = app.members.find(m => m.id === originalId);
+                if (!member) return;
+
+                if (newId !== originalId && app.members.find(m => m.id === newId)) {
+                    alert(`ID "${newId}" sudah digunakan!`); return;
+                }
+
+                if (newId !== originalId) {
+                    app.members.forEach(m => { if (m.upline === originalId) m.upline = newId; });
+                    app.transactions.forEach(t => { if (t.memberId === originalId) t.memberId = newId; });
+                }
+
+                member.id = newId; member.name = name; member.upline = upline;
+                member.coordinate = coordinate; member.status = status;
+            } else {
+                if (app.members.find(m => m.id === newId)) {
+                    alert(`ID "${newId}" sudah terdaftar!`); return;
+                }
+
+                app.members.push({
+                    id: newId, name: name, upline: upline,
+                    totalCommission: 0, coordinate: coordinate, status: status,
+                    totalPoints: 0, transactions: 0
+                });
+            }
+
+            app.saveData(); closeModal('memberModal'); app.render();
+        }
+
+        function updateTransactionPrice() {
+            const productCode = document.getElementById('transactionProduct').value;
+            const qty = parseFloat(document.getElementById('transactionQty').value) || 1;
+            const product = app.products.find(p => p.code === productCode);
+            
+            if (product) {
+                const value = product.price * qty;
+                document.getElementById('transactionValue').value = app.formatCurrency(value);
+                updateMemberUplinesTable();
+            }
+        }
+
+        function updateMemberUplinesTable() {
+            const memberId = document.getElementById('transactionMember').value;
+            const productCode = document.getElementById('transactionProduct').value;
+            const qty = parseFloat(document.getElementById('transactionQty').value) || 1;
+            const product = app.products.find(p => p.code === productCode);
+
+            const tbody = document.getElementById('commissionTableBody');
+            tbody.innerHTML = '';
+
+            if (memberId && product) {
+                const hierarchy = app.getMemberHierarchy(memberId);
+                hierarchy.forEach((mId, level) => {
+                    if (level < product.levels) {
+                        const member = app.members.find(m => m.id === mId);
+                        const commissionAmount = product.levelCommissions[level] * qty;
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><strong>Level ${level}</strong></td>
+                            <td>${member?.name || 'Unknown'}</td>
+                            <td style="color: var(--color-success); font-weight: 600;">${app.formatCurrency(commissionAmount)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                });
+            }
+        }
+
+        function addTransaction(e) {
+            e.preventDefault();
+            const memberId = document.getElementById('transactionMember').value;
+            const productCode = document.getElementById('transactionProduct').value;
+            const qty = parseFloat(document.getElementById('transactionQty').value);
+            const product = app.products.find(p => p.code === productCode);
+            
+            const dateInput = document.getElementById('transactionDate').value;
+            const dateObj = new Date(dateInput);
+            const dateFormatted = dateObj.toLocaleDateString('id-ID');
+
+            const value = product.price * qty;
+            const totalCommission = product.levelCommissions[0] * qty;
+
+            app.transactions.push({
+                memberId, productCode, qty, value, totalCommission, date: dateFormatted
+            });
+
+            const member = app.members.find(m => m.id === memberId);
+            if (member) {
+                member.totalCommission += totalCommission;
+                member.transactions +=1;
+            }
+
+            app.saveData(); 
+            closeModal('transactionModal');
+            app.render();
+            document.getElementById('transactionModal').querySelector('form').reset();
+        }
+
+        function deleteTransaction(idx) {
+            const transaction = app.transactions[idx];
+            if (!transaction) return;
+
+            const member = app.members.find(m => m.id === transaction.memberId);
+
+            if (confirm(`Hapus transaksi ini?`)) {
+                if (member) {
+                    member.totalCommission -= transaction.totalCommission;
+                    member.transactions -= 1;
+                }
+                app.transactions.splice(idx, 1);
+                app.saveData(); 
+                app.render();
+            }
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function checkLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUsername').value;
+            const p = document.getElementById('loginPassword').value;
+
+            if (u === 'GMRJ' && p === '333100') {
+                document.getElementById('login-screen').style.display = 'none';
+                document.querySelector('.container').style.display = 'grid';
+                app.init();
+            } else {
+                alert('Username atau Password Salah!');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {});
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) { e.target.classList.remove('active'); }
+            if (window.innerWidth <= 768 && !e.target.closest('.sidebar') && !e.target.closest('.mobile-menu-btn')) {
+                document.querySelector('.sidebar').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

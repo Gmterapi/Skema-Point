@@ -260,7 +260,7 @@
         }
         .backup-actions { display: flex; gap: var(--spacing-16); flex-wrap: wrap; }
 
-        /* --- REPORT ACCORDION STYLES (NEW) --- */
+        /* --- REPORT ACCORDION STYLES --- */
         .report-accordion {
             margin-bottom: var(--spacing-24);
             border: 1px solid var(--color-border);
@@ -326,7 +326,7 @@
         /* --- PRINT MEDIA QUERY --- */
         @media print {
             .sidebar, .header, .mobile-menu-btn, .nav-menu, .settings, 
-            #dashboard, #products, #members, #transactions, #commissions, #recap, #network-tree, 
+            #dashboard, #products, #members, #commissions, #recap, #network-tree, 
             .report-header, .btn-close, .modal, .form-group {
                 display: none !important;
             }
@@ -342,7 +342,9 @@
                 color: black !important;
             }
 
-            #reports {
+            /* Logic for printing different sections based on body class */
+            body.printing-transactions #transactions,
+            body.printing-reports #reports {
                 display: block !important;
             }
 
@@ -691,14 +693,19 @@
             <div id="transactions" class="tab-content">
                 <div class="card">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-24);">
-                        <h3 style="margin: 0;">Input Transaksi</h3>
-                        <button class="btn btn-primary" onclick="openAddTransactionModal()">+ Transaksi Baru</button>
+                        <h3 style="margin: 0;">Data Transaksi</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-secondary" onclick="printTransactions()">🖨️ Cetak PDF</button>
+                            <button class="btn btn-secondary" onclick="exportTransactionsToExcel()">📊 Export Excel</button>
+                            <button class="btn btn-primary" onclick="openAddTransactionModal()">+ Transaksi Baru</button>
+                        </div>
                     </div>
                     <div class="table-wrapper">
                         <table id="transactions-table">
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>Kode Transaksi</th>
                                     <th>Tanggal</th>
                                     <th>Member</th>
                                     <th>Produk</th>
@@ -738,7 +745,7 @@
                 </div>
             </div>
 
-            <!-- Laporan (REVISED TO ACCORDION) -->
+            <!-- Laporan -->
             <div id="reports" class="tab-content">
                 <h2 style="margin-bottom: var(--spacing-24);">Laporan & Analisis</h2>
 
@@ -998,13 +1005,12 @@
 
                         <hr style="border: 0; border-top: 1px solid var(--color-border);">
 
-                        <!-- FITUR BARU: IMPORT TRANSAKSI -->
+                        <!-- FITUR: IMPORT TRANSAKSI -->
                         <div>
                             <h4>📈 Import Data Transaksi (CSV/Excel)</h4>
                             <p style="font-size: 13px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">
                                 Upload file CSV (.csv) untuk menambahkan transaksi. <br>
-                                <strong>Kolom Wajib:</strong> Member, Produk (Nama), Jumlah. <br>
-                                <strong>Kolom Opsional:</strong> Tanggal (Jika kosong = Hari ini). <br>
+                                <strong>Format Kolom:</strong> No, Kode Transaksi, Tanggal, Member, Produk, Jumlah. <br>
                                 <em>Sistem akan otomatis menghitung Nilai dan Komisi berdasarkan data Produk.</em>
                             </p>
                             <input type="file" id="importTransactionFile" accept=".csv" style="margin-bottom: var(--spacing-8);">
@@ -1016,18 +1022,6 @@
                                     📥 Download Template CSV
                                 </button>
                             </div>
-                        </div>
-
-                        <hr style="border: 0; border-top: 1px solid var(--color-border);">
-
-                        <div>
-                            <h4>📊 Export Data Transaksi (Excel)</h4>
-                            <p style="font-size: 13px; color: var(--color-text-light); margin-bottom: var(--spacing-8);">
-                                Download semua data transaksi ke dalam file CSV yang bisa dibuka di Microsoft Excel.
-                            </p>
-                            <button class="btn btn-secondary" onclick="exportToExcel()">
-                                📥 Export Transaksi (.csv)
-                            </button>
                         </div>
 
                         <hr style="border: 0; border-top: 1px solid var(--color-border);">
@@ -1167,14 +1161,23 @@
     <div id="transactionModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Input Transaksi Baru</h2>
+                <h2 id="transactionModalTitle">Input Transaksi Baru</h2>
                 <button class="close-btn" onclick="closeModal('transactionModal')">&times;</button>
             </div>
-            <form onsubmit="addTransaction(event)">
+            <form onsubmit="saveTransaction(event)">
+                <input type="hidden" id="editTransactionIndex" value="-1"> <!-- -1 means Add Mode -->
+                
+                <div class="form-group">
+                    <label>Kode Transaksi <span style="color: var(--color-error);">*</span></label>
+                    <input type="text" id="transactionCode" required placeholder="Contoh: DS0001" oninput="this.value = this.value.toUpperCase()">
+                    <small style="color: var(--color-text-light);">Kode harus unik dan tidak boleh sama dengan transaksi lain.</small>
+                </div>
+
                 <div class="form-group">
                     <label>Tanggal Transaksi</label>
                     <input type="date" id="transactionDate" required>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label>Member Pembeli</label>
@@ -1189,6 +1192,7 @@
                         </select>
                     </div>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label>Jumlah</label>
@@ -1199,6 +1203,7 @@
                         <input type="text" id="transactionValue" readonly style="background: #f5f5f5;">
                     </div>
                 </div>
+
                 <div class="card" style="background: #f9f9f9; margin-bottom: var(--spacing-16);">
                     <h4 style="margin-bottom: var(--spacing-16);">Distribusi Komisi</h4>
                     <div class="table-wrapper">
@@ -1224,7 +1229,7 @@
             products: [],
             members: [],
             transactions: [],
-            STORAGE_KEY: 'mlm_system_data_v1',
+            STORAGE_KEY: 'mlm_system_data_v2', // Version bump to handle schema change safely
             
             init() {
                 this.loadData();
@@ -1242,6 +1247,16 @@
                         this.products = data.products || [];
                         this.members = data.members || [];
                         this.transactions = data.transactions || [];
+                        
+                        // Migration Check: Ensure old transactions have 'code' field (optional, for safety)
+                        this.transactions = this.transactions.map((t, i) => {
+                            if (!t.code) {
+                                // Generate code if missing from old data, though user input is preferred
+                                return { ...t, code: `MIGRATED-${Date.now()}-${i}` }; 
+                            }
+                            return t;
+                        });
+
                         console.log('Data dimuat dari LocalStorage.');
                     } catch (e) {
                         console.error('Gagal memuat data, mereset ke default...', e);
@@ -1482,8 +1497,10 @@
                     const member = this.members.find(m => m.id === t.memberId);
                     const product = this.products.find(p => p.code === t.productCode);
                     const row = document.createElement('tr');
+                    // UPDATED ORDER: No, Kode Transaksi, ...
                     row.innerHTML = `
                         <td>${idx + 1}</td>
+                        <td><strong>${t.code}</strong></td>
                         <td>${t.date || '-'}</td>
                         <td>${member?.name || 'Unknown'}</td>
                         <td>${product?.name || 'Unknown'}</td>
@@ -1491,6 +1508,7 @@
                         <td>${this.formatCurrency(t.value)}</td>
                         <td style="color: var(--color-success); font-weight: 600;">${this.formatCurrency(t.totalCommission)}</td>
                         <td>
+                            <button class="btn btn-small btn-secondary" onclick="openEditTransactionModal(${idx})">✏️</button>
                             <button class="btn btn-small btn-secondary" style="color: var(--color-error);" onclick="deleteTransaction(${idx})">🗑️</button>
                         </td>
                     `;
@@ -1690,10 +1708,10 @@
         }
 
         function downloadTransactionTemplate() {
-            // Updated Template: Removed Value and Commission columns
-            const headers = ["No", "Tanggal", "Member", "Produk", "Jumlah"];
-            const sample1 = ["1", "2023-10-27", "Adi Kusumah", "Pheromone", "2"];
-            const sample2 = ["2", "", "Budi Santoso", "Pendan Wulung", "1"];
+            // UPDATED: Urutan No, Kode Transaksi, Tanggal...
+            const headers = ["No", "Kode Transaksi", "Tanggal", "Member", "Produk", "Jumlah"];
+            const sample1 = ["1", "DS0001", "2026-03-01", "Adi Kusumah", "Pendan Wulung", "1"];
+            const sample2 = ["2", "DS0002", "", "Budi Santoso", "Pheromone", "2"];
             
             const csvContent = "data:text/csv;charset=utf-8,"
                 + headers.join(",") + "\n"
@@ -1703,13 +1721,12 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "template_transaksi_sederhana.csv");
+            link.setAttribute("download", "template_transaksi_gmrj.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        // --- REVISED IMPORT TRANSACTION LOGIC ---
         function importTransactionsFromCSV() {
             const fileInput = document.getElementById('importTransactionFile');
             const file = fileInput.files[0];
@@ -1734,26 +1751,30 @@
                     
                     // 2. Mapping Header Indices (Dynamic)
                     let startIndex = 0;
-                    let idxDate = -1, idxMember = -1, idxProduct = -1, idxQty = -1;
+                    let idxNo = -1, idxCode = -1, idxDate = -1, idxMember = -1, idxProduct = -1, idxQty = -1;
 
                     // Cari header
                     const headers = rows[0].split(delimiter).map(h => h.trim().toLowerCase());
                     
                     // Cek apakah baris pertama adalah header atau data
-                    const isHeader = headers.some(h => h.includes('member') || h.includes('produk') || h.includes('tanggal'));
+                    const isHeader = headers.some(h => h.includes('kode') || h.includes('member') || h.includes('produk'));
                     
                     if (isHeader) {
+                        idxNo = headers.findIndex(h => h === 'no');
+                        idxCode = headers.findIndex(h => h.includes('kode')); // Cari 'kode transaksi'
                         idxDate = headers.indexOf('tanggal');
                         idxMember = headers.indexOf('member');
                         idxProduct = headers.indexOf('produk');
                         idxQty = headers.findIndex(h => h.includes('jumlah') || h === 'qty');
                         startIndex = 1;
                     } else {
-                        // Jika tidak ada header, asumsi urutan standar: No, Tgl, Member, Produk, Qty
-                        idxDate = 1;
-                        idxMember = 2;
-                        idxProduct = 3;
-                        idxQty = 4;
+                        // Jika tidak ada header, asumsi urutan standar: No, Code, Tgl, Member, Produk, Qty
+                        idxNo = 0;
+                        idxCode = 1;
+                        idxDate = 2;
+                        idxMember = 3;
+                        idxProduct = 4;
+                        idxQty = 5;
                     }
 
                     let successCount = 0;
@@ -1768,20 +1789,28 @@
                         const cols = parseCSVLine(rowText, delimiter);
                         
                         // Ambil data berdasarkan index dinamis
+                        // No diabaikan karena di-generate sistem
+                        const code = (idxCode >= 0 && cols[idxCode]) ? cols[idxCode].replace(/^"|"$/g, '').trim().toUpperCase() : '';
                         const dateStr = (idxDate >= 0 && cols[idxDate]) ? cols[idxDate].replace(/^"|"$/g, '') : '';
                         const memberName = (idxMember >= 0 && cols[idxMember]) ? cols[idxMember].replace(/^"|"$/g, '').trim() : '';
                         const productName = (idxProduct >= 0 && cols[idxProduct]) ? cols[idxProduct].replace(/^"|"$/g, '').trim() : '';
                         const qty = (idxQty >= 0 && cols[idxQty]) ? parseFloat(cols[idxQty].replace(/[^\d.,]/g, '')) : 0;
 
                         // Validasi Dasar
-                        if (!memberName || !productName || !qty || qty <= 0) {
+                        if (!code || !memberName || !productName || !qty || qty <= 0) {
                             failCount++;
-                            failDetails.push(`Baris ${i+1}: Data kurang lengkap (Member, Produk, atau Qty kosong).`);
+                            failDetails.push(`Baris ${i+1}: Data kurang lengkap.`);
+                            continue;
+                        }
+
+                        // Validasi Kode Transaksi Unik
+                        if (app.transactions.some(t => t.code === code)) {
+                            failCount++;
+                            failDetails.push(`Baris ${i+1}: Kode Transaksi '${code}' sudah ada!`);
                             continue;
                         }
 
                         // 4. Cari Produk berdasarkan NAMA (Case Insensitive)
-                        // Prioritaskan pencocokan Nama
                         const product = app.products.find(p => p.name.toLowerCase() === productName.toLowerCase());
                         
                         if (!product) {
@@ -1813,11 +1842,12 @@
                             }
                         }
 
-                        // 7. HITUNG NILAI & KOMISI SECARA OTOMATIS (Mengabaikan CSV Value/Komisi)
+                        // 7. HITUNG NILAI & KOMISI SECARA OTOMATIS
                         const value = product.price * qty;
                         const totalCommission = product.levelCommissions[0] * qty; 
 
                         app.transactions.push({
+                            code: code,
                             memberId: member.id,
                             productCode: product.code,
                             qty: qty,
@@ -1932,14 +1962,16 @@
             }
         }
 
-        function exportToExcel() {
+        // --- EXPORT TRANSAKSI TO EXCEL (Updated Columns) ---
+        function exportTransactionsToExcel() {
             if (app.transactions.length === 0) {
                 alert('Belum ada data transaksi untuk diexport.');
                 return;
             }
 
             let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "No,Tanggal,ID Member,Nama Member,Produk,Jumlah,Total Nilai,Total Komisi\n";
+            // UPDATED HEADER ORDER: No, Kode Transaksi, Tanggal...
+            csvContent += "No,Kode Transaksi,Tanggal,ID Member,Nama Member,Produk,Jumlah,Total Nilai,Total Komisi\n";
 
             app.transactions.forEach((t, index) => {
                 const member = app.members.find(m => m.id === t.memberId);
@@ -1947,6 +1979,7 @@
                 
                 const row = [
                     index + 1,
+                    t.code,
                     t.date,
                     t.memberId,
                     member ? member.name : "Unknown",
@@ -2460,7 +2493,42 @@
         }
 
         function openAddTransactionModal() {
+            document.getElementById('transactionModalTitle').textContent = 'Input Transaksi Baru';
+            document.getElementById('editTransactionIndex').value = '-1';
+            document.querySelector('#transactionModal form').reset();
+            
+            // Set default date
             document.getElementById('transactionDate').valueAsDate = new Date();
+            
+            // Generate suggested code (optional)
+            const nextNum = app.transactions.length + 1;
+            document.getElementById('transactionCode').value = `DS${nextNum.toString().padStart(4, '0')}`;
+            
+            document.getElementById('transactionModal').classList.add('active');
+        }
+
+        function openEditTransactionModal(index) {
+            const t = app.transactions[index];
+            if (!t) return;
+
+            document.getElementById('transactionModalTitle').textContent = 'Edit Transaksi';
+            document.getElementById('editTransactionIndex').value = index;
+            
+            document.getElementById('transactionCode').value = t.code;
+            
+            // Parse date string back to yyyy-mm-dd for input
+            const d = new Date(t.date);
+            if (!isNaN(d)) {
+                document.getElementById('transactionDate').value = d.toISOString().split('T')[0];
+            }
+
+            document.getElementById('transactionMember').value = t.memberId;
+            document.getElementById('transactionProduct').value = t.productCode;
+            document.getElementById('transactionQty').value = t.qty;
+            document.getElementById('transactionValue').value = app.formatCurrency(t.value);
+
+            // Trigger preview
+            updateMemberUplinesTable();
             document.getElementById('transactionModal').classList.add('active');
         }
 
@@ -2550,8 +2618,11 @@
             }
         }
 
-        function addTransaction(e) {
+        function saveTransaction(e) {
             e.preventDefault();
+            
+            const editIndex = parseInt(document.getElementById('editTransactionIndex').value);
+            const code = document.getElementById('transactionCode').value.trim().toUpperCase();
             const memberId = document.getElementById('transactionMember').value;
             const productCode = document.getElementById('transactionProduct').value;
             const qty = parseFloat(document.getElementById('transactionQty').value);
@@ -2564,20 +2635,68 @@
             const value = product.price * qty;
             const totalCommission = product.levelCommissions[0] * qty;
 
-            app.transactions.push({
-                memberId, productCode, qty, value, totalCommission, date: dateFormatted
-            });
+            // Check Unique Code (Skip if editing and code hasn't changed)
+            const isDuplicate = app.transactions.some((t, idx) => t.code === code && idx !== editIndex);
+            if (isDuplicate) {
+                alert(`Kode Transaksi "${code}" sudah digunakan! Gunakan kode lain.`);
+                return;
+            }
 
-            const member = app.members.find(m => m.id === memberId);
-            if (member) {
-                member.totalCommission += totalCommission;
-                member.transactions +=1;
+            // Logic for Edit: Revert old commissions first
+            if (editIndex > -1) {
+                const oldTransaction = app.transactions[editIndex];
+                const oldMember = app.members.find(m => m.id === oldTransaction.memberId);
+                
+                if (oldMember) {
+                    oldMember.totalCommission -= oldTransaction.totalCommission;
+                    oldMember.transactions -= 1;
+                }
+                
+                // Update data
+                app.transactions[editIndex] = {
+                    code: code,
+                    memberId: memberId,
+                    productCode: productCode,
+                    qty: qty,
+                    value: value,
+                    totalCommission: totalCommission,
+                    date: dateFormatted
+                };
+
+                // Add new commissions to member (might be same or different member)
+                const newMember = app.members.find(m => m.id === memberId);
+                if (newMember) {
+                    newMember.totalCommission += totalCommission;
+                    newMember.transactions += 1;
+                }
+                
+                alert('Transaksi berhasil diperbarui.');
+            } else {
+                // Add New
+                app.transactions.push({
+                    code: code,
+                    memberId: memberId,
+                    productCode: productCode,
+                    qty: qty,
+                    value: value,
+                    totalCommission: totalCommission,
+                    date: dateFormatted
+                });
+
+                const member = app.members.find(m => m.id === memberId);
+                if (member) {
+                    member.totalCommission += totalCommission;
+                    member.transactions += 1;
+                }
+                
+                alert('Transaksi baru berhasil disimpan.');
             }
 
             app.saveData(); 
             closeModal('transactionModal');
             app.render();
             document.getElementById('transactionModal').querySelector('form').reset();
+            document.getElementById('editTransactionIndex').value = "-1";
         }
 
         function deleteTransaction(idx) {
@@ -2598,7 +2717,17 @@
         }
 
         function printReport() {
+            // Prepare print styles for Reports
+            document.body.classList.remove('printing-transactions');
             window.print();
+        }
+
+        function printTransactions() {
+            // Prepare print styles for Transactions
+            document.body.classList.add('printing-transactions');
+            window.print();
+            // Remove class after print dialog closes (usually immediate, but timeout ensures cleanup)
+            setTimeout(() => document.body.classList.remove('printing-transactions'), 1000);
         }
 
         function checkLogin(e) {
@@ -2623,5 +2752,5 @@
             }
         });
     </script>
-</body>
+</body> 
 </html>
